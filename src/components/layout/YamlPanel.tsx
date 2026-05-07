@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
@@ -13,6 +13,11 @@ export function YamlPanel() {
   const docs = generateYamlDocs(state);
   const generatedYaml = docs.map((d) => d.yamlText).join('\n---\n');
   const fileName = `${state.name || 'cluster'}-cluster.yaml`;
+
+  // Close edit mode when switching back to Default config
+  useEffect(() => {
+    if (state.configType === 'default') setEditMode(false);
+  }, [state.configType]);
 
   // When entering edit mode, seed with current generated YAML
   const handleToggleEdit = () => {
