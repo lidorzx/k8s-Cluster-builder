@@ -20,7 +20,6 @@ The output is byte-for-byte identical to what VCF Automation generates when you 
 - **Live YAML preview** — Manifest updates in real time as you type, with syntax highlighting
 - **Node pool management** — Add multiple pools via a guided modal with per-pool overrides
 - **Volumes support** — Configure persistent volumes at cluster, control plane, or per-pool level
-- **Certificate rotation** — Enable and configure renewal days
 - **Content Library ID helper** — Built-in `kubectl` command hint to find your content library ID
 - **Copy or Download** — One-click copy to clipboard or download as `.yaml`
 - **No dependencies** — Runs entirely in the browser
