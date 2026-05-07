@@ -6,33 +6,29 @@ interface ReviewSectionProps {
   id?: string;
 }
 
-function ReviewRow({ label, value }: { label: string; value: string | React.ReactNode }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start py-2.5 border-b border-gray-100 last:border-b-0">
-      <div className="w-56 flex-shrink-0 pr-4">
-        <span className="text-sm text-gray-600">{label}</span>
+    <div className="flex items-start py-2 border-b border-gray-100 last:border-b-0">
+      <div className="w-48 flex-shrink-0 pr-4">
+        <span className="text-sm text-gray-500">{label}</span>
       </div>
-      <div className="flex-1">
-        {typeof value === 'string' ? (
-          <span className="text-sm font-medium text-[#0072c6]">{value || '—'}</span>
-        ) : (
-          value
-        )}
-      </div>
+      <span className="text-sm font-medium text-[#0072c6]">{value || '—'}</span>
+    </div>
+  );
+}
+
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-5">
+      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{title}</div>
+      <div className="border border-gray-100 bg-[#fafbfc]">{children}</div>
     </div>
   );
 }
 
 export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
   const state = useClusterClassStore();
-
-  // We need to override SectionCard to not show NEXT on last step
-  // We use a wrapper approach — render a SectionCard but suppress its NEXT button
-  // by using a custom inner layout. Actually SectionCard always shows NEXT.
-  // To handle the last step, we render outside of SectionCard's NEXT or we accept it.
-  // Per spec: "No NEXT button on the last step". We can pass a custom prop or
-  // just live with it since the spec says no NEXT but SectionCard always shows it.
-  // We'll wrap manually to avoid the NEXT button.
+  const isDefault = state.configType === 'default';
 
   return (
     <SectionCard
@@ -42,58 +38,92 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
       id={id}
       hideNext
     >
-      <div className="mt-2">
-        <ReviewRow label="Cluster Name" value={state.name} />
-        <ReviewRow label="Cluster Class" value={state.clusterClassName} />
-        <ReviewRow label="Kubernetes Release" value={state.kubernetesVersion} />
-        <ReviewRow label="Namespace" value={state.namespace} />
-        <ReviewRow label="Pods CIDR" value={state.podCidr} />
-        <ReviewRow label="Services CIDR" value={state.serviceCidr} />
-        <ReviewRow label="Service Domain" value={state.serviceDomain} />
-        <ReviewRow label="VM Class" value={state.vmClass} />
-        <ReviewRow label="Storage Class" value={state.storageClass} />
-        <ReviewRow label="Default Storage Class" value={state.defaultStorageClass} />
-        <ReviewRow label="Cluster FQDN" value={state.endpointFQDNs[0] ?? ''} />
-        <ReviewRow label="NTP Server" value={state.ntpServers[0] ?? ''} />
-        <ReviewRow
-          label="Certificate Rotation"
-          value={
-            state.certificateRotationEnabled
-              ? `${state.certificateRotationDays} days`
-              : 'Disabled'
-          }
-        />
-        <ReviewRow
-          label="Volumes"
-          value={state.volumes.length > 0 ? 'Added' : 'None'}
-        />
-        <ReviewRow label="Control Plane Replicas" value={String(state.controlPlane.replicas)} />
-        <ReviewRow label="Control Plane OS Image" value={state.controlPlane.osImageName} />
-        <ReviewRow label="Content Library" value={state.controlPlane.contentLibrary} />
-        <ReviewRow
-          label="Control Plane Volumes"
-          value={state.controlPlane.volumeOverrides.length > 0 ? 'Added' : 'None'}
-        />
-        <div className="flex items-start py-2.5">
-          <div className="w-56 flex-shrink-0 pr-4">
-            <span className="text-sm text-gray-600">Worker Pools</span>
-          </div>
-          <div className="flex-1 space-y-1">
-            <span className="text-sm font-medium text-[#0072c6]">
-              {state.workerPools.length} pool(s)
-            </span>
-            {state.workerPools.map((pool) => {
-              const displayName = pool.name || `${state.name}-np-...`;
-              return (
-                <div key={pool.id} className="flex items-center gap-2 text-sm pl-2">
-                  <span className="text-gray-500">{displayName}</span>
-                  <span className="text-gray-400 text-xs">({pool.replicas} replica{pool.replicas !== 1 ? 's' : ''})</span>
+      <p className="text-sm text-gray-500 mb-5">
+        Your cluster will be deployed with the following configuration:
+      </p>
+
+      {isDefault ? (
+        /* ── Default mode: compact VCF-style review ── */
+        <div>
+          <Group title="Cluster">
+            <Row label="Kind" value="Cluster" />
+            <Row label="Cluster Name" value={state.name} />
+            <Row label="Cluster Class" value={state.clusterClassName} />
+            <Row label="Kubernetes Release" value={state.kubernetesVersion} />
+            <Row label="Namespace" value={state.namespace} />
+          </Group>
+
+          <Group title="Control Plane">
+            <Row label="Replicas" value={String(state.controlPlane.replicas)} />
+            <Row label="VM Class" value={state.vmClass} />
+            <Row label="Storage Class" value={state.storageClass} />
+            <Row label="OS Image" value={state.controlPlane.osImageName} />
+            {state.controlPlane.contentLibrary && (
+              <Row label="Content Library" value={state.controlPlane.contentLibrary} />
+            )}
+          </Group>
+
+          <Group title="Node Pools">
+            {state.workerPools.map((pool) => (
+              <div key={pool.id} className="border-b border-gray-100 last:border-b-0">
+                <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+                  <span className="text-xs font-semibold text-gray-600 font-mono">
+                    {pool.name || `${state.name}-np-…`}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+                <div className="px-0">
+                  <Row label="Class" value={pool.poolClass} />
+                  <Row label="Replicas" value={String(pool.replicas)} />
+                  <Row label="VM Class" value={state.vmClass} />
+                  <Row label="Storage Class" value={state.storageClass} />
+                  <Row label="OS Image" value={pool.osImageName} />
+                </div>
+              </div>
+            ))}
+          </Group>
         </div>
-      </div>
+      ) : (
+        /* ── Custom mode: full review ── */
+        <div>
+          <Group title="Cluster">
+            <Row label="Cluster Name" value={state.name} />
+            <Row label="Namespace" value={state.namespace} />
+            <Row label="Cluster Class" value={state.clusterClassName} />
+            <Row label="Kubernetes Release" value={state.kubernetesVersion} />
+            <Row label="Pods CIDR" value={state.podCidr} />
+            <Row label="Services CIDR" value={state.serviceCidr} />
+            <Row label="Service Domain" value={state.serviceDomain} />
+            <Row label="VM Class" value={state.vmClass} />
+            <Row label="Storage Class" value={state.storageClass} />
+            <Row label="Default Storage Class" value={state.defaultStorageClass} />
+            <Row label="Cluster FQDN" value={state.endpointFQDNs[0] ?? ''} />
+            <Row label="NTP Server" value={state.ntpServers[0] ?? ''} />
+            <Row label="Certificate Rotation" value={state.certificateRotationEnabled ? `Enabled — ${state.certificateRotationDays} days` : 'Disabled'} />
+          </Group>
+
+          <Group title="Control Plane">
+            <Row label="Replicas" value={String(state.controlPlane.replicas)} />
+            <Row label="OS Image" value={state.controlPlane.osImageName} />
+            <Row label="Content Library" value={state.controlPlane.contentLibrary} />
+            <Row label="Volumes" value={state.controlPlane.volumeOverrides.length > 0 ? `${state.controlPlane.volumeOverrides.length} volume(s)` : 'None'} />
+          </Group>
+
+          <Group title="Node Pools">
+            {state.workerPools.map((pool) => (
+              <div key={pool.id} className="border-b border-gray-100 last:border-b-0">
+                <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+                  <span className="text-xs font-semibold text-gray-600 font-mono">
+                    {pool.name || `${state.name}-np-…`}
+                  </span>
+                </div>
+                <Row label="Class" value={pool.poolClass} />
+                <Row label="Replicas" value={String(pool.replicas)} />
+                <Row label="OS Image" value={pool.osImageName} />
+              </div>
+            ))}
+          </Group>
+        </div>
+      )}
     </SectionCard>
   );
 }
