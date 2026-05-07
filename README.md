@@ -95,6 +95,17 @@ App runs at `http://localhost:5173`.
 
 ---
 
+## Deployment
+
+GitHub Actions builds the app on every push to `main` and publishes the generated `dist` folder to the `gh-pages` branch.
+
+In GitHub Pages settings, set the source to:
+
+- Branch: `gh-pages`
+- Folder: `/ (root)`
+
+---
+
 ## Author
 
 Lidor Eliya
