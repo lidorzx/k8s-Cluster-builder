@@ -2,7 +2,7 @@
 
 > Generate production-ready Cluster API manifests for VMware Cloud Foundation 9.x — directly in the browser.
 
-**Live demo:** https://lidorzx.github.io/k8s-cluster-builder/
+**Live demo:** https://lidorzx.github.io/k8s-Cluster-builder/
 
 ---
 
