@@ -44,8 +44,12 @@ function ContentLibraryHint() {
 }
 
 export function DefaultSettingsSection({ stepNumber, id }: Props) {
-  const { name, namespace, vmClass, storageClass, controlPlane, update, updateControlPlane } =
-    useClusterClassStore();
+  const {
+    name, namespace, vmClass, storageClass, kubernetesVersion,
+    controlPlane, workerPools, update, updateControlPlane, updateWorkerPool,
+  } = useClusterClassStore();
+
+  const defaultPool = workerPools[0];
 
   return (
     <SectionCard
@@ -81,6 +85,22 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
           </FieldHint>
         </FormField>
 
+        <FormField label="Kubernetes Release" htmlFor="d-k8s" required>
+          <input
+            id="d-k8s"
+            type="text"
+            value={kubernetesVersion}
+            onChange={(e) => update({ kubernetesVersion: e.target.value })}
+            placeholder="v1.33.6---vmware.1-fips-vkr.2"
+            className={INPUT}
+          />
+          <FieldHint label="How to find available releases">
+            <p>Lists all Tanzu Kubernetes Releases available on this Supervisor cluster:</p>
+            <KubectlBlock command="kubectl get tkr" />
+            <p className="text-gray-500">Copy the full name from the <span className="font-mono">NAME</span> column.</p>
+          </FieldHint>
+        </FormField>
+
         <FormField label="VM Class" htmlFor="d-vmclass" required>
           <input
             id="d-vmclass"
@@ -110,6 +130,45 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
             <KubectlBlock command="kubectl get storageclasses" />
           </FieldHint>
         </FormField>
+
+        <FormField label="Control Plane Nodes" htmlFor="d-cp-replicas" required>
+          <div className="flex gap-4 pt-1">
+            {([1, 3, 5] as const).map((n) => (
+              <label key={n} className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="radio"
+                  name="d-cp-replicas"
+                  value={n}
+                  checked={controlPlane.replicas === n}
+                  onChange={() => updateControlPlane({ replicas: n })}
+                  className="w-4 h-4 text-blue-600 border-gray-300"
+                />
+                <span className="text-sm text-gray-700">{n}</span>
+              </label>
+            ))}
+          </div>
+          <FieldHint label="How many control plane nodes do I need?">
+            <p><strong>1</strong> — Dev/test only. No HA; cluster goes down if this node fails.</p>
+            <p><strong>3</strong> — Recommended for production. Tolerates 1 node failure.</p>
+            <p><strong>5</strong> — High availability. Tolerates 2 node failures.</p>
+          </FieldHint>
+        </FormField>
+
+        {defaultPool && (
+          <FormField label="Worker Node Replicas" htmlFor="d-np-replicas" required>
+            <input
+              id="d-np-replicas"
+              type="number"
+              min={1}
+              value={defaultPool.replicas}
+              onChange={(e) =>
+                updateWorkerPool(defaultPool.id, { replicas: parseInt(e.target.value, 10) || 1 })
+              }
+              className={INPUT + ' w-28'}
+            />
+            <p className="mt-1 text-xs text-gray-400">Number of worker nodes in the default node pool</p>
+          </FormField>
+        )}
 
         <FormField label="OS Image" htmlFor="d-os" hint="e.g. photon, ubuntu">
           <input
