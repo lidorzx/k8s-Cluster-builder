@@ -95,16 +95,6 @@ App runs at `http://localhost:5173`.
 
 ---
 
-## Deployment
-
-Automatically deployed to GitHub Pages on every push to `main` via GitHub Actions.
-
-```bash
-git push origin main   # triggers .github/workflows/deploy.yml
-```
-
----
-
 ## Author
 
 Lidor Eliya
