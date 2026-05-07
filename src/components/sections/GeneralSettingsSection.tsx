@@ -73,7 +73,7 @@ export function GeneralSettingsSection({ stepNumber, id }: GeneralSettingsSectio
             type="text"
             value={state.storageClass}
             onChange={(e) => update({ storageClass: e.target.value })}
-            placeholder="bynet-m01-cl01-...-policy"
+            placeholder="e.g. sc-datastore-policy"
             className={INPUT_CLASS}
           />
         </FormField>

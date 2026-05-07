@@ -92,7 +92,7 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
             type="text"
             value={storageClass}
             onChange={(e) => update({ storageClass: e.target.value })}
-            placeholder="bynet-m01-cl01-...-policy"
+            placeholder="e.g. sc-datastore-policy"
             className={INPUT}
           />
         </FormField>
