@@ -1,5 +1,6 @@
 import { SectionCard } from '../ui/SectionCard';
 import { FormField } from '../ui/FormField';
+import { FieldHint, KubectlBlock } from '../ui/FieldHint';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 import { useState } from 'react';
 
@@ -73,6 +74,11 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
             placeholder="e.g. namespace-myorg-xxxx"
             className={INPUT}
           />
+          <FieldHint label="How to find your namespace">
+            <p>The vSphere Namespace where this cluster will be created.</p>
+            <KubectlBlock command="kubectl get namespaces" />
+            <p className="text-gray-500">Or: vSphere UI → Workload Management → Namespaces.</p>
+          </FieldHint>
         </FormField>
 
         <FormField label="VM Class" htmlFor="d-vmclass" required>
@@ -84,6 +90,10 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
             placeholder="best-effort-medium"
             className={INPUT}
           />
+          <FieldHint label="How to find available VM classes">
+            <p>VM classes define CPU and memory for each node. List available ones:</p>
+            <KubectlBlock command="kubectl get virtualmachineclasses" />
+          </FieldHint>
         </FormField>
 
         <FormField label="Storage Class" htmlFor="d-sc" required>
@@ -95,6 +105,10 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
             placeholder="e.g. sc-datastore-policy"
             className={INPUT}
           />
+          <FieldHint label="How to find available storage classes">
+            <p>Controls which datastore/policy is used for node disks.</p>
+            <KubectlBlock command="kubectl get storageclasses" />
+          </FieldHint>
         </FormField>
 
         <FormField label="OS Image" htmlFor="d-os" hint="e.g. photon, ubuntu">

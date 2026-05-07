@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SectionCard } from '../ui/SectionCard';
 import { FormField } from '../ui/FormField';
+import { FieldHint } from '../ui/FieldHint';
 import { VolumeEditor } from '../ui/VolumeEditor';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 
@@ -77,6 +78,11 @@ export function ControlPlaneSection({ stepNumber, id }: ControlPlaneSectionProps
               </label>
             ))}
           </div>
+          <FieldHint label="How many control plane nodes do I need?">
+            <p><strong>1</strong> — Single node. Suitable for dev/test only. No HA; the cluster goes down if this node fails.</p>
+            <p><strong>3</strong> — Recommended for production. Tolerates 1 node failure.</p>
+            <p><strong>5</strong> — High availability. Tolerates 2 node failures. Use for critical workloads.</p>
+          </FieldHint>
         </FormField>
 
         <FormField
