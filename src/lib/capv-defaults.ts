@@ -1,7 +1,7 @@
 import type { ClusterFormState } from '../types/cluster';
 
 export const defaultState: ClusterFormState = {
-  configType: 'custom',
+  configType: 'default',
   name: 'kubernetes-cluster',
   namespace: '',
   clusterClassName: 'builtin-generic-v3.4.0',

@@ -14,7 +14,7 @@ function ReviewRow({ label, value }: { label: string; value: string | React.Reac
       </div>
       <div className="flex-1">
         {typeof value === 'string' ? (
-          <span className="text-sm font-medium text-sky-600">{value || '—'}</span>
+          <span className="text-sm font-medium text-[#0072c6]">{value || '—'}</span>
         ) : (
           value
         )}
@@ -79,7 +79,7 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
             <span className="text-sm text-gray-600">Worker Pools</span>
           </div>
           <div className="flex-1 space-y-1">
-            <span className="text-sm font-medium text-sky-600">
+            <span className="text-sm font-medium text-[#0072c6]">
               {state.workerPools.length} pool(s)
             </span>
             {state.workerPools.map((pool) => {

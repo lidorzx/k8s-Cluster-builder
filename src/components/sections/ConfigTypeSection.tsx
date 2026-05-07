@@ -37,8 +37,8 @@ export function ConfigTypeSection({ stepNumber, id }: ConfigTypeSectionProps) {
               key={opt.value}
               className={`flex items-start gap-3 p-4 border cursor-pointer transition-colors ${
                 active
-                  ? 'border-sky-500 bg-sky-50'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-[#0072c6] bg-[#f0f7ff]'
+                  : 'border-gray-200 hover:border-[#0072c6]/40 hover:bg-[#f8fbff]'
               }`}
             >
               <input
@@ -47,10 +47,10 @@ export function ConfigTypeSection({ stepNumber, id }: ConfigTypeSectionProps) {
                 value={opt.value}
                 checked={active}
                 onChange={() => update({ configType: opt.value })}
-                className="mt-0.5 w-4 h-4 text-sky-600 border-gray-300 flex-shrink-0"
+                className="mt-0.5 w-4 h-4 text-[#0072c6] border-gray-300 flex-shrink-0"
               />
               <div>
-                <span className={`text-sm font-medium ${active ? 'text-sky-800' : 'text-gray-800'}`}>
+                <span className={`text-sm font-medium ${active ? 'text-[#0072c6]' : 'text-gray-800'}`}>
                   {opt.label}
                 </span>
                 <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{opt.description}</p>

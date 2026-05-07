@@ -27,7 +27,6 @@ export function SectionCard({
     const nextSibling = rootRef.current?.nextElementSibling as HTMLElement | null;
     if (nextSibling) {
       setTimeout(() => nextSibling.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-      // Open the next section by clicking its header button
       const nextBtn = nextSibling.querySelector('button') as HTMLButtonElement | null;
       nextBtn?.click();
     }
@@ -37,51 +36,50 @@ export function SectionCard({
     <div
       ref={rootRef}
       id={id}
-      className={`bg-white transition-all ${
-        open ? 'border-l-[3px] border-l-blue-600' : 'border-l-[3px] border-l-transparent'
-      }`}
+      className={`bg-white transition-all ${open ? 'border-l-[3px] border-l-[#0072c6]' : 'border-l-[3px] border-l-transparent'}`}
     >
+      {/* Header */}
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center px-6 py-4 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center px-6 py-3.5 text-left hover:bg-[#f5f8fb] transition-colors group"
       >
+        {/* Step circle */}
+        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3 transition-colors ${
+          open ? 'bg-[#0072c6] text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
+        }`}>
+          {stepNumber}
+        </div>
+
+        <span className={`text-sm font-semibold ${open ? 'text-[#0072c6]' : 'text-gray-600'}`}>
+          {title}
+        </span>
+
+        {description && !open && (
+          <span className="ml-3 text-xs text-gray-400 truncate">{description}</span>
+        )}
+
         <svg
-          className={`w-4 h-4 text-gray-400 mr-3 flex-shrink-0 transition-transform duration-150 ${
-            open ? '' : '-rotate-90'
-          }`}
+          className={`w-4 h-4 ml-auto text-gray-400 flex-shrink-0 transition-transform duration-150 ${open ? '' : '-rotate-90'}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
-
-        <span className={`text-sm mr-1.5 ${open ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
-          {stepNumber}.
-        </span>
-        <span className={`text-sm ${open ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
-          {title}
-        </span>
-
-        {description && (
-          <span className={`ml-auto text-sm font-normal pl-8 ${open ? 'text-gray-500' : 'text-sky-600'}`}>
-            {description}
-          </span>
-        )}
       </button>
 
+      {/* Body */}
       {open && (
-        <div className="px-8 pb-6 pt-2 border-t border-gray-100">
+        <div className="px-8 pb-6 pt-3 border-t border-gray-100">
           {children}
 
-          {/* NEXT button — matches VCF wizard style */}
           {!hideNext && (
             <div className="mt-6 pt-4 border-t border-gray-100">
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-5 py-1.5 text-sm text-sky-700 border border-sky-600 hover:bg-sky-50 transition-colors font-medium tracking-wide"
+                className="px-5 py-1.5 text-sm text-white bg-[#0072c6] hover:bg-[#005fa3] transition-colors font-medium tracking-wide"
               >
                 NEXT
               </button>

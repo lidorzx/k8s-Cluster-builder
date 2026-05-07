@@ -8,7 +8,7 @@ interface Props {
 }
 
 const INPUT =
-  'block w-full text-sm border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 px-3 py-1.5 bg-white';
+  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5 bg-white';
 
 function genSuffix(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -112,7 +112,7 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
                       active
                         ? 'bg-sky-600 text-white'
                         : done
-                        ? 'bg-sky-100 text-sky-600 border border-sky-300'
+                        ? 'bg-sky-100 text-[#0072c6] border border-sky-300'
                         : 'bg-gray-200 text-gray-500'
                     }`}
                   >
@@ -270,7 +270,7 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
                     <button
                       type="button"
                       onClick={addVolume}
-                      className="text-xs text-sky-700 border border-sky-600 hover:bg-sky-50 px-3 py-1 font-medium transition-colors"
+                      className="text-xs text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] px-3 py-1 font-medium transition-colors"
                     >
                       + ADD VOLUME
                     </button>
@@ -326,7 +326,7 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="px-4 py-1.5 text-sm text-white bg-sky-600 hover:bg-sky-700 font-medium transition-colors"
+              className="px-4 py-1.5 text-sm text-white bg-[#0072c6] hover:bg-[#005fa3] font-medium transition-colors"
             >
               NEXT
             </button>
@@ -334,7 +334,7 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
             <button
               type="button"
               onClick={handleAdd}
-              className="px-4 py-1.5 text-sm text-white bg-sky-600 hover:bg-sky-700 font-medium transition-colors"
+              className="px-4 py-1.5 text-sm text-white bg-[#0072c6] hover:bg-[#005fa3] font-medium transition-colors"
             >
               ADD
             </button>

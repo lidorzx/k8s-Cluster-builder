@@ -66,7 +66,7 @@ export function NodePoolsSection({ stepNumber, id }: NodePoolsSectionProps) {
             <button
               type="button"
               onClick={() => setShowModal(true)}
-              className="px-4 py-1.5 text-sm text-sky-700 border border-sky-600 hover:bg-sky-50 font-medium transition-colors"
+              className="px-4 py-1.5 text-sm text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] font-medium transition-colors"
             >
               ADD NODE POOL
             </button>

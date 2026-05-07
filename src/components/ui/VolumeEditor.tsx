@@ -1,7 +1,7 @@
 import type { Volume } from '../../types/cluster';
 
 const INPUT_CLASS =
-  'block w-full text-sm border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 px-3 py-1.5';
+  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5';
 
 interface VolumeEditorProps {
   volumes: Volume[];
@@ -77,7 +77,7 @@ export function VolumeEditor({ volumes, onAdd, onRemove, onUpdate }: VolumeEdito
         <button
           type="button"
           onClick={onAdd}
-          className="px-4 py-1.5 text-sm text-sky-700 border border-sky-600 hover:bg-sky-50 font-medium transition-colors"
+          className="px-4 py-1.5 text-sm text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] font-medium transition-colors"
         >
           ADD VOLUME
         </button>

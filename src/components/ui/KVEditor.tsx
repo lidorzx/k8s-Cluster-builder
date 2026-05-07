@@ -61,14 +61,14 @@ export function KVEditor({ label, pairs, onChange }: KVEditorProps) {
             value={key}
             onChange={(e) => handleKeyChange(key, e.target.value)}
             placeholder="Key"
-            className="flex-1 text-sm rounded border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-w-0"
+            className="flex-1 text-sm rounded border-gray-300 focus:border-[#0072c6] focus:ring-[#0072c6] min-w-0"
           />
           <input
             type="text"
             value={value}
             onChange={(e) => handleValueChange(key, e.target.value)}
             placeholder="Value"
-            className="flex-1 text-sm rounded border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-w-0"
+            className="flex-1 text-sm rounded border-gray-300 focus:border-[#0072c6] focus:ring-[#0072c6] min-w-0"
           />
           <button
             type="button"
