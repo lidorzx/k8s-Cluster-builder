@@ -108,6 +108,4 @@ git push origin main   # triggers .github/workflows/deploy.yml
 
 ## Author
 
-**Lidor Eliya** — Broadcom / VMware Cloud Foundation  
-GitHub: [@lidorzx](https://github.com/lidorzx)  
-Email: lidoreliya13@gmail.com
+Lidor Eliya
