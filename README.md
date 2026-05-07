@@ -2,7 +2,7 @@
 
 > Generate production-ready Cluster API manifests for VMware Cloud Foundation 9.x — directly in the browser.
 
-**Live demo:** https://lidorzx.github.io/VCF-Cluster-builder/
+**Live demo:** https://lidorzx.github.io/k8s-cluster-builder/
 
 ---
 
@@ -86,8 +86,8 @@ spec:
 ## Running locally
 
 ```bash
-git clone https://github.com/lidorzx/VCF-Cluster-builder.git
-cd VCF-Cluster-builder
+git clone https://github.com/lidorzx/k8s-cluster-builder.git
+cd k8s-cluster-builder
 npm install
 npm run dev
 ```

@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/VCF-Cluster-builder/',
+  base: '/k8s-cluster-builder/',
 })

@@ -1,5 +1,5 @@
 {
-  "name": "cluster-class-builder",
+  "name": "k8s-cluster-builder",
   "private": true,
   "version": "0.0.0",
   "type": "module",

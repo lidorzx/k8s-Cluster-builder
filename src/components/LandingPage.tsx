@@ -105,7 +105,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/20 text-sky-300 border border-sky-500/30">Cluster API</span>
           <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 text-white/60 border border-white/10">VCF 9.x</span>
           <a
-            href="https://github.com/lidorzx/VCF-Cluster-builder"
+            href="https://github.com/lidorzx/k8s-cluster-builder"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 text-white/40 hover:text-white/80 transition-colors"
@@ -158,7 +158,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
                 NEW CLUSTER
               </button>
               <a
-                href="https://github.com/lidorzx/VCF-Cluster-builder"
+                href="https://github.com/lidorzx/k8s-cluster-builder"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-sm font-medium rounded-sm border border-white/10 transition-all"
