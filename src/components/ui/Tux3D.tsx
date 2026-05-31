@@ -9,23 +9,18 @@ const pointer = { x: 0, y: 0 };
 
 const FRAME = '#2b2f3a';
 
-function Lens({ x }: { x: number }) {
+function Lens({ x, ry }: { x: number; ry: number }) {
   return (
-    <group position={[x, 0, 0]}>
-      {/* gunmetal frame (reads against the black body) */}
-      <mesh scale={[0.31, 0.25, 0.07]}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
+    <group position={[x, 0, 0]} rotation={[0, ry, 0]}>
+      {/* flat, sleek wraparound lens (reflective blue glass) */}
+      <mesh scale={[0.22, 0.17, 0.04]}>
+        <sphereGeometry args={[1, 40, 24]} />
+        <meshPhysicalMaterial color="#0a1830" metalness={0.55} roughness={0.05} clearcoat={1} clearcoatRoughness={0.05} />
       </mesh>
-      {/* reflective blue glass lens */}
-      <mesh position={[0, 0, 0.045]} scale={[0.25, 0.19, 0.08]}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshPhysicalMaterial color="#0a2a5e" metalness={0.5} roughness={0.04} clearcoat={1} clearcoatRoughness={0.04} />
-      </mesh>
-      {/* glowing eye */}
-      <mesh position={[0.01, 0.01, 0.16]}>
+      {/* glowing eye just inside the lens */}
+      <mesh position={[0, 0, 0.05]}>
         <sphereGeometry args={[0.05, 24, 24]} />
-        <meshStandardMaterial color="#062b27" emissive="#2dd4bf" emissiveIntensity={4} toneMapped={false} />
+        <meshStandardMaterial color="#062b27" emissive="#22d3ee" emissiveIntensity={3.6} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -34,14 +29,14 @@ function Lens({ x }: { x: number }) {
 function EarCup({ x }: { x: number }) {
   const side = Math.sign(x) || 1;
   return (
-    <group position={[x, 0.2, 0]}>
+    <group position={[x, 0.28, 0]}>
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.24, 0.24, 0.2, 32]} />
+        <cylinderGeometry args={[0.2, 0.2, 0.14, 32]} />
         <meshStandardMaterial color="#1c1c25" metalness={0.55} roughness={0.4} />
       </mesh>
       {/* brand-glow ring on the outer face */}
-      <mesh position={[side * 0.11, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[0.15, 0.022, 14, 36]} />
+      <mesh position={[side * 0.08, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[0.12, 0.018, 14, 36]} />
         <meshStandardMaterial color="#6366f1" emissive="#6366f1" emissiveIntensity={1.6} toneMapped={false} />
       </mesh>
     </group>
@@ -112,38 +107,38 @@ function Penguin() {
         <meshStandardMaterial color="#f59e0b" roughness={0.5} />
       </mesh>
 
-      {/* sunglasses */}
-      <group position={[0, 0.5, 0.8]}>
-        <Lens x={-0.3} />
-        <Lens x={0.3} />
+      {/* sunglasses — sleek, flat, slightly wrapped */}
+      <group position={[0, 0.46, 0.82]}>
+        <Lens x={-0.24} ry={0.32} />
+        <Lens x={0.24} ry={-0.32} />
         {/* bridge */}
-        <mesh position={[0, 0.03, 0.06]}>
-          <boxGeometry args={[0.26, 0.05, 0.06]} />
+        <mesh position={[0, 0.0, 0.05]}>
+          <boxGeometry args={[0.2, 0.04, 0.05]} />
           <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
         </mesh>
         {/* brow bar */}
-        <mesh position={[0, 0.14, 0.05]}>
-          <boxGeometry args={[0.92, 0.05, 0.06]} />
+        <mesh position={[0, 0.09, 0.04]}>
+          <boxGeometry args={[0.64, 0.04, 0.05]} />
           <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
         </mesh>
         {/* temple arms */}
-        <mesh position={[-0.58, 0.08, -0.22]} rotation={[0, 0.6, 0]}>
-          <boxGeometry args={[0.5, 0.045, 0.05]} />
+        <mesh position={[-0.45, 0.05, -0.18]} rotation={[0, 0.7, 0]}>
+          <boxGeometry args={[0.42, 0.035, 0.045]} />
           <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
         </mesh>
-        <mesh position={[0.58, 0.08, -0.22]} rotation={[0, -0.6, 0]}>
-          <boxGeometry args={[0.5, 0.045, 0.05]} />
+        <mesh position={[0.45, 0.05, -0.18]} rotation={[0, -0.7, 0]}>
+          <boxGeometry args={[0.42, 0.035, 0.045]} />
           <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
         </mesh>
       </group>
 
-      {/* headphones */}
-      <mesh position={[0, 0.2, 0]}>
-        <torusGeometry args={[1.04, 0.08, 16, 64, Math.PI]} />
+      {/* headphones — band hugging the head + ear cups on the sides */}
+      <mesh position={[0, 0.28, 0]}>
+        <torusGeometry args={[0.99, 0.07, 16, 64, Math.PI]} />
         <meshStandardMaterial color="#1b1b22" metalness={0.55} roughness={0.4} />
       </mesh>
-      <EarCup x={-1.02} />
-      <EarCup x={1.02} />
+      <EarCup x={-0.95} />
+      <EarCup x={0.95} />
     </group>
   );
 }
@@ -197,7 +192,7 @@ export default function Tux3D({ className }: { className?: string }) {
         <Canvas
           shadows
           dpr={[1, 1.8]}
-          camera={{ position: [0, 0.4, 5.2], fov: 32 }}
+          camera={{ position: [0, 0.15, 6.6], fov: 30 }}
           gl={{ antialias: true, alpha: true }}
           style={{ width: '100%', height: '100%' }}
         >
