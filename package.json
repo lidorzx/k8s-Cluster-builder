@@ -13,10 +13,13 @@
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
     "js-yaml": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-syntax-highlighter": "^15.5.0",
+    "three": "^0.169.0",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

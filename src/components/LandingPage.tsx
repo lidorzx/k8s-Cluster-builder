@@ -1,5 +1,9 @@
+import { lazy, Suspense } from 'react';
 import { LogoMark } from './ui/LogoMark';
 import { TuxMascot } from './ui/TuxMascot';
+
+// 3D Tux is heavy (three.js) — load it lazily and fall back to the SVG.
+const Tux3D = lazy(() => import('./ui/Tux3D'));
 
 interface LandingPageProps {
   onStart: () => void;
@@ -113,9 +117,17 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,transparent_35%,rgba(0,0,0,0.55))]" />
         </div>
 
-        {/* The star: a big Tux that watches your cursor */}
-        <div className="pointer-events-none absolute bottom-0 right-[1%] z-[5] hidden lg:block">
-          <TuxMascot className="h-[68vh] max-h-[820px] w-auto animate-float drop-shadow-[0_30px_70px_rgba(0,0,0,0.75)] xl:h-[80vh]" />
+        {/* The star: a real-time 3D Tux that watches your cursor */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-[5] hidden w-[55vw] lg:block">
+          <Suspense
+            fallback={
+              <div className="flex h-full items-center justify-center">
+                <TuxMascot className="h-[64vh] w-auto opacity-90" />
+              </div>
+            }
+          >
+            <Tux3D className="h-full w-full" />
+          </Suspense>
         </div>
 
         {/* Headline */}
