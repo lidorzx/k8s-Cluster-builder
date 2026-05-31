@@ -18,6 +18,8 @@ export const defaultState: ClusterFormState = {
   vmClass: 'best-effort-medium',
   storageClass: '',
   volumes: [],
+  registryTrust: [],
+  registryTrustSecretName: 'registry-ca-trust-secret',
   controlPlane: {
     replicas: 1,
     osImageName: 'photon',

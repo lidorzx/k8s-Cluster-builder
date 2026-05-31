@@ -1,7 +1,37 @@
 import yaml from 'js-yaml';
-import type { ClusterFormState, Volume } from '../types/cluster';
+import type { ClusterFormState, RegistryTrust, Volume } from '../types/cluster';
 
 const DUMP_OPTS = { noRefs: true, lineWidth: -1 };
+
+// VKS expects the trust-secret value to be the PEM, base64-encoded twice:
+// the inner layer is what VKS decodes back to PEM, the outer layer is the
+// standard Kubernetes Secret `data` encoding. Mirrors `base64 -w0 ca.crt | base64 -w0`.
+function doubleBase64(pem: string): string {
+  const normalized = pem.trim() + '\n';
+  // encodeURIComponent/unescape keeps btoa safe even if the PEM has non-ASCII bytes
+  const inner = btoa(unescape(encodeURIComponent(normalized)));
+  return btoa(inner);
+}
+
+// Registry entries that are complete enough to emit into the Cluster spec.
+function usableRegistryTrust(entries: RegistryTrust[]): RegistryTrust[] {
+  return entries.filter((r) =>
+    r.mode === 'paste'
+      ? r.certPem.trim() !== '' && r.caKey.trim() !== ''
+      : r.secretName.trim() !== '' && r.secretKey.trim() !== ''
+  );
+}
+
+// additionalTrustedCAs[] entries for osConfiguration.trust
+function buildTrustedCAs(state: ClusterFormState) {
+  return usableRegistryTrust(state.registryTrust).map((r) => {
+    const ref =
+      r.mode === 'paste'
+        ? { name: state.registryTrustSecretName, key: r.caKey.trim() }
+        : { name: r.secretName.trim(), key: r.secretKey.trim() };
+    return { caCert: { secretRef: ref } };
+  });
+}
 
 function genNpSuffix(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -79,17 +109,19 @@ export function generateYaml(state: ClusterFormState): string {
     variables.push({ name: 'kubernetes', value: kubeValue });
   }
 
-  // osConfiguration — only if ntpServers has a non-empty entry
+  // osConfiguration — a single variable holding both ntp and registry trust.
+  // (Two variables with the same name would be invalid, so these must be merged.)
+  const osConfiguration: Record<string, unknown> = {};
   const validNtp = ntpServers.filter((s) => s.trim() !== '');
   if (validNtp.length > 0) {
-    variables.push({
-      name: 'osConfiguration',
-      value: {
-        ntp: {
-          servers: validNtp,
-        },
-      },
-    });
+    osConfiguration.ntp = { servers: validNtp };
+  }
+  const trustedCAs = buildTrustedCAs(state);
+  if (trustedCAs.length > 0) {
+    osConfiguration.trust = { additionalTrustedCAs: trustedCAs };
+  }
+  if (Object.keys(osConfiguration).length > 0) {
+    variables.push({ name: 'osConfiguration', value: osConfiguration });
   }
 
   // vmClass
@@ -195,6 +227,32 @@ export function generateYaml(state: ClusterFormState): string {
   return yaml.dump(doc, DUMP_OPTS);
 }
 
+// Companion Secret holding every pasted CA. Applied to the same Supervisor
+// namespace as the Cluster. Returns null when no CA was pasted (e.g. all entries
+// reference an existing secret, or registry trust is unused).
+export function generateTrustSecretYaml(state: ClusterFormState): string | null {
+  const pasted = usableRegistryTrust(state.registryTrust).filter((r) => r.mode === 'paste');
+  if (pasted.length === 0) return null;
+
+  const data: Record<string, string> = {};
+  for (const r of pasted) {
+    data[r.caKey.trim()] = doubleBase64(r.certPem);
+  }
+
+  const doc = {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: state.registryTrustSecretName,
+      namespace: state.namespace,
+    },
+    type: 'Opaque',
+    data,
+  };
+
+  return yaml.dump(doc, DUMP_OPTS);
+}
+
 export interface YamlDoc {
   id: string;
   label: string;
@@ -203,13 +261,26 @@ export interface YamlDoc {
 }
 
 export function generateYamlDocs(state: ClusterFormState): YamlDoc[] {
-  const yamlText = generateYaml(state);
-  return [
-    {
-      id: 'cluster',
-      label: 'Cluster',
-      name: state.name,
-      yamlText,
-    },
-  ];
+  const docs: YamlDoc[] = [];
+
+  // The CA trust secret must exist before the Cluster references it, so it
+  // comes first in the multi-document manifest.
+  const secretYaml = generateTrustSecretYaml(state);
+  if (secretYaml) {
+    docs.push({
+      id: 'trust-secret',
+      label: 'Secret',
+      name: state.registryTrustSecretName,
+      yamlText: secretYaml,
+    });
+  }
+
+  docs.push({
+    id: 'cluster',
+    label: 'Cluster',
+    name: state.name,
+    yamlText: generateYaml(state),
+  });
+
+  return docs;
 }

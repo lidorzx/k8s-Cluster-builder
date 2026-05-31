@@ -19,6 +19,22 @@ export interface WorkerPool {
   volumes?: Volume[];
 }
 
+// A private container registry whose CA certificate the cluster nodes must trust.
+// Emitted as an entry under osConfiguration.trust.additionalTrustedCAs in the Cluster
+// spec. In "paste" mode the builder also generates the companion Supervisor Secret
+// that holds the (double base64-encoded) PEM.
+export interface RegistryTrust {
+  id: string;
+  registryHost: string;   // UX label only, e.g. "artifactory.company.com" — not emitted in trust YAML
+  mode: 'paste' | 'existing';
+  // paste mode — user pastes the PEM, builder generates the Secret + reference
+  certPem: string;        // raw PEM text (-----BEGIN CERTIFICATE-----…)
+  caKey: string;          // data key under which the CA is stored, e.g. "artifactory-ca"
+  // existing mode — reference a Secret already present in the Supervisor namespace
+  secretName: string;     // existing secret name
+  secretKey: string;      // key within that secret
+}
+
 export interface ClusterFormState {
   configType: 'default' | 'custom';
   name: string;
@@ -37,6 +53,8 @@ export interface ClusterFormState {
   vmClass: string;
   storageClass: string;
   volumes: Volume[];
+  registryTrust: RegistryTrust[];
+  registryTrustSecretName: string;   // name of the Secret the builder generates for pasted CAs
   controlPlane: {
     replicas: 1 | 3 | 5;
     osImageName: string;

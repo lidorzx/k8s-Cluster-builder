@@ -7,6 +7,7 @@ import { DefaultSettingsSection } from './components/sections/DefaultSettingsSec
 import { GeneralSettingsSection } from './components/sections/GeneralSettingsSection';
 import { ControlPlaneSection } from './components/sections/ControlPlaneSection';
 import { NodePoolsSection } from './components/sections/NodePoolsSection';
+import { RegistryTrustSection } from './components/sections/RegistryTrustSection';
 import { ReviewSection } from './components/sections/ReviewSection';
 import { useClusterClassStore } from './store/useClusterClassStore';
 
@@ -35,7 +36,8 @@ function App() {
               <GeneralSettingsSection stepNumber={2} id="section-general" />
               <ControlPlaneSection stepNumber={3} id="section-cp" />
               <NodePoolsSection stepNumber={4} id="section-pools" />
-              <ReviewSection stepNumber={5} id="section-review" />
+              <RegistryTrustSection stepNumber={5} id="section-registry" />
+              <ReviewSection stepNumber={6} id="section-review" />
             </>
           )}
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ClusterFormState, Volume, WorkerPool } from '../types/cluster';
+import type { ClusterFormState, RegistryTrust, Volume, WorkerPool } from '../types/cluster';
 import { defaultState } from '../lib/capv-defaults';
 
 function genId(): string {
@@ -29,6 +29,9 @@ interface ClusterActions {
   addPoolVolume: (poolId: string) => void;
   removePoolVolume: (poolId: string, volumeId: string) => void;
   updatePoolVolume: (poolId: string, volumeId: string, partial: Partial<Volume>) => void;
+  addRegistryTrust: () => void;
+  removeRegistryTrust: (id: string) => void;
+  updateRegistryTrust: (id: string, partial: Partial<RegistryTrust>) => void;
   resetToDefaults: () => void;
 }
 
@@ -168,6 +171,34 @@ export const useClusterClassStore = create<StoreState>((set) => ({
               ),
             }
           : p
+      ),
+    })),
+
+  addRegistryTrust: () =>
+    set((state) => ({
+      registryTrust: [
+        ...state.registryTrust,
+        {
+          id: genId(),
+          registryHost: '',
+          mode: 'paste',
+          certPem: '',
+          caKey: 'registry-ca',
+          secretName: '',
+          secretKey: '',
+        },
+      ],
+    })),
+
+  removeRegistryTrust: (id) =>
+    set((state) => ({
+      registryTrust: state.registryTrust.filter((r) => r.id !== id),
+    })),
+
+  updateRegistryTrust: (id, partial) =>
+    set((state) => ({
+      registryTrust: state.registryTrust.map((r) =>
+        r.id === id ? { ...r, ...partial } : r
       ),
     })),
 

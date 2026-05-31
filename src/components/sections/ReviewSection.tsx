@@ -179,6 +179,26 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
               </div>
             ))}
           </Group>
+
+          {state.registryTrust.length > 0 && (
+            <Group title="Private Registry Trust">
+              {state.registryTrust.map((r, i) => (
+                <div key={r.id} className="border-b border-gray-100 last:border-b-0">
+                  <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+                    <span className="text-xs font-semibold text-gray-600 font-mono">
+                      {r.registryHost || `registry-${i + 1}`}
+                    </span>
+                  </div>
+                  <Row label="Certificate source" value={r.mode === 'paste' ? 'Pasted (Secret generated)' : 'Existing secret'} />
+                  <Row
+                    label="Secret"
+                    value={r.mode === 'paste' ? state.registryTrustSecretName : r.secretName}
+                  />
+                  <Row label="Data key" value={r.mode === 'paste' ? r.caKey : r.secretKey} />
+                </div>
+              ))}
+            </Group>
+          )}
         </div>
       )}
 

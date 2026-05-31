@@ -147,9 +147,14 @@ export function YamlPanel() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
         <span className="text-xs font-mono font-medium text-sky-700 truncate">
-          {state.name || 'cluster'} / Cluster
+          {docs.map((d) => d.label).join(' + ')}
         </span>
-        <span className="ml-auto text-xs text-gray-400 font-mono">{fileName}</span>
+        {docs.length > 1 && (
+          <span className="px-1.5 py-0.5 text-[0.65rem] font-medium bg-sky-50 text-sky-600 border border-sky-200 rounded-sm">
+            {docs.length} docs
+          </span>
+        )}
+        <span className="ml-auto text-xs text-gray-400 font-mono truncate">{fileName}</span>
       </div>
 
       {/* YAML content */}
