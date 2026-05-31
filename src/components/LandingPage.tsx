@@ -5,28 +5,6 @@ interface LandingPageProps {
   onStart: () => void;
 }
 
-const YAML_PREVIEW = `apiVersion: cluster.x-k8s.io/v1beta1
-kind: Cluster
-metadata:
-  name: my-cluster
-  namespace: ns-prod-xx4k
-spec:
-  topology:
-    class: builtin-generic-v3.4.0
-    version: v1.33.6---vmware.1-fips
-    variables:
-      - name: vmClass
-        value: best-effort-medium
-      - name: storageClass
-        value: vcf-datastore-policy
-    controlPlane:
-      replicas: 3
-      metadata:
-        annotations:
-          run.tanzu.vmware.com/resolve-os-image: >-
-            os-name=photon,
-            content-library=cl-96778...`;
-
 const features = [
   {
     icon: (
@@ -96,65 +74,75 @@ const features = [
 
 export function LandingPage({ onStart }: LandingPageProps) {
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-ink-950">
+    <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-white">
 
-      {/* Nav */}
-      <header className="relative z-10 flex items-center justify-between border-b border-white/10 px-8 py-4">
+      {/* Nav — floats over the hero */}
+      <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 sm:px-10">
         <div className="flex items-center gap-2.5">
           <LogoMark className="h-7 w-7" variant="dark" />
           <span className="text-sm font-semibold text-white/90">VCF Cluster Builder</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-brand-500/30 bg-brand-500/20 px-2.5 py-0.5 text-xs font-medium text-brand-200">Cluster API</span>
-          <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white/60">VCF 9.x</span>
+          <span className="hidden rounded-full border border-white/10 bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white/60 sm:inline">VCF 9.x</span>
           <a
             href="https://github.com/lidorzx/k8s-cluster-builder"
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-2 text-white/40 hover:text-white/80 transition-colors"
+            className="ml-2 text-white/40 transition-colors hover:text-white/80"
             title="View on GitHub"
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
             </svg>
           </a>
         </div>
       </header>
 
-      {/* Hero */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden">
+      {/* HERO — cinematic, full height */}
+      <section className="relative h-screen min-h-[620px] overflow-hidden">
+        {/* Lighting */}
+        <div className="pointer-events-none absolute inset-0">
+          {/* spotlight beam from the top onto Tux */}
+          <div className="absolute -top-40 right-[22%] h-[130vh] w-[480px] -rotate-12 bg-gradient-to-b from-white/12 via-white/5 to-transparent blur-2xl" />
+          {/* brand glow behind Tux */}
+          <div className="absolute right-[4%] top-[6%] h-[72vh] w-[48vw] rounded-full bg-brand-600/25 blur-3xl" />
+          <div className="absolute bottom-0 right-[12%] h-48 w-[44vw] rounded-[50%] bg-sky-500/20 blur-3xl" />
+          {/* faint grid + vignette */}
+          <div className="absolute inset-0 bg-grid-light opacity-[0.04] [background-size:34px_34px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,transparent_35%,rgba(0,0,0,0.55))]" />
+        </div>
 
-        {/* Background glow */}
-        <div className="pointer-events-none absolute left-1/2 top-1/4 h-[440px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/20 blur-3xl" />
-        <div className="pointer-events-none absolute left-1/3 top-1/3 h-[320px] w-[320px] rounded-full bg-sky-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-indigo-500/10 blur-3xl" />
+        {/* The star: a big Tux that watches your cursor */}
+        <div className="pointer-events-none absolute bottom-0 right-[1%] z-[5] hidden lg:block">
+          <TuxMascot className="h-[68vh] max-h-[820px] w-auto animate-float drop-shadow-[0_30px_70px_rgba(0,0,0,0.75)] xl:h-[80vh]" />
+        </div>
 
-        <div className="relative z-10 max-w-5xl w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-
-          {/* Left: text + CTA */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-300">
+        {/* Headline */}
+        <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6 sm:px-10">
+          <div className="max-w-xl text-center lg:text-left">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-300 backdrop-blur">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400" />
               VMware Cloud Foundation 9.x
             </div>
 
-            <h1 className="mb-4 text-4xl font-bold leading-tight text-white lg:text-5xl">
-              Kubernetes Cluster<br />
-              <span className="bg-gradient-to-r from-brand-400 via-sky-400 to-sky-300 bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-x">
+            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl xl:text-7xl">
+              Kubernetes Cluster
+              <span className="mt-1 block animate-gradient-x bg-gradient-to-r from-brand-400 via-sky-400 to-sky-300 bg-[length:200%_auto] bg-clip-text text-transparent">
                 YAML Builder
               </span>
             </h1>
 
-            <p className="text-base text-white/50 mb-8 max-w-md lg:max-w-none leading-relaxed">
-              Generate production-ready Cluster API manifests for VCF 9.x.<br />
-              Same output as VCF Automation — no backend, no login required.
+            <p className="mx-auto mt-6 max-w-md text-base leading-relaxed text-white/55 lg:mx-0 lg:text-lg">
+              Generate production-ready Cluster API manifests for VCF 9.x — the same output as
+              VCF Automation. No backend, no login. Tux has your back.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center lg:items-start gap-3">
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row lg:items-start">
               <button
                 type="button"
                 onClick={onStart}
-                className="group inline-flex items-center gap-2 rounded-xl bg-brand-gradient bg-[length:200%_200%] px-6 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:bg-[position:100%_50%] hover:shadow-glow-sky active:scale-[0.98]"
+                className="group inline-flex items-center gap-2 rounded-xl bg-brand-gradient bg-[length:200%_200%] px-7 py-3 text-sm font-semibold text-white shadow-glow transition-all hover:bg-[position:100%_50%] hover:shadow-glow-sky active:scale-[0.98]"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -168,65 +156,58 @@ export function LandingPage({ onStart }: LandingPageProps) {
                 href="https://github.com/lidorzx/k8s-cluster-builder"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-3 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white"
               >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                 </svg>
                 View on GitHub
               </a>
             </div>
           </div>
+        </div>
 
-          {/* Right: YAML preview */}
-          <div className="flex-shrink-0 w-full lg:w-[420px]">
-            <div className="rounded-lg border border-white/10 overflow-hidden shadow-2xl shadow-black/40">
-              {/* Window chrome */}
-              <div className="flex items-center gap-1.5 px-4 py-3 bg-white/5 border-b border-white/10">
-                <span className="w-3 h-3 rounded-full bg-red-500/70" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                <span className="w-3 h-3 rounded-full bg-green-500/70" />
-                <span className="ml-3 text-xs text-white/30 font-mono">my-cluster.yaml</span>
+        {/* Tux on small screens (centered, smaller) */}
+        <div className="pointer-events-none absolute bottom-0 left-1/2 z-[1] -translate-x-1/2 opacity-30 lg:hidden">
+          <TuxMascot className="h-[40vh] w-auto" />
+        </div>
+
+        {/* scroll cue */}
+        <div className="absolute bottom-5 left-1/2 z-10 -translate-x-1/2 animate-bounce text-white/30">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="relative z-10 border-t border-white/5 px-6 py-24 sm:px-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 text-center">
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">Everything you need to ship a cluster</h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm text-white/45">
+              From a one-click default to full custom — with the YAML done right and ready to apply.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon, title, desc }) => (
+              <div
+                key={title}
+                className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-brand-400/40 hover:bg-white/[0.06] hover:shadow-glow"
+              >
+                <div className="mb-3 inline-flex rounded-xl bg-brand-500/10 p-2.5 text-brand-300 transition-colors group-hover:text-sky-300">
+                  {icon}
+                </div>
+                <div className="mb-1 text-sm font-semibold text-white/85">{title}</div>
+                <div className="text-xs leading-relaxed text-white/40">{desc}</div>
               </div>
-              {/* Code */}
-              <pre className="bg-[#0d1117] text-[0.7rem] leading-relaxed p-4 overflow-x-auto font-mono">
-                {YAML_PREVIEW.split('\n').map((line, i) => {
-                  const isKey = /^\s*(apiVersion|kind|metadata|spec|name|namespace|topology|class|version|variables|controlPlane|replicas|annotations|workers):/.test(line);
-                  const isValue = /^\s+value:/.test(line) || /:\s+\S/.test(line);
-                  const isDash = /^\s+-\s/.test(line);
-                  return (
-                    <div key={i} className={
-                      isKey ? 'text-sky-400' :
-                      isDash ? 'text-blue-300' :
-                      isValue ? 'text-green-300/80' :
-                      'text-white/40'
-                    }>
-                      {line || ' '}
-                    </div>
-                  );
-                })}
-                <div className="text-white/20 mt-1 animate-pulse">▋</div>
-              </pre>
-            </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Features grid */}
-        <div className="relative z-10 max-w-5xl w-full mt-20 grid grid-cols-2 lg:grid-cols-3 gap-3">
-          {features.map(({ icon, title, desc }) => (
-            <div
-              key={title}
-              className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all hover:-translate-y-0.5 hover:border-brand-400/40 hover:bg-white/[0.06]"
-            >
-              <div className="mb-2.5 text-brand-300 transition-colors group-hover:text-sky-300">{icon}</div>
-              <div className="mb-1 text-sm font-semibold text-white/85">{title}</div>
-              <div className="text-xs leading-relaxed text-white/40">{desc}</div>
-            </div>
-          ))}
-        </div>
-      </main>
-
-      <footer className="text-center py-5 border-t border-white/8 text-xs text-white/25 space-y-1">
+      <footer className="relative z-10 space-y-1 border-t border-white/5 py-6 text-center text-xs text-white/25">
         <div>VCF Kubernetes Cluster Builder · Cluster API · VCF 9.x</div>
         <div>
           Built by{' '}
@@ -234,36 +215,12 @@ export function LandingPage({ onStart }: LandingPageProps) {
             href="https://github.com/lidorzx"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sky-400/70 hover:text-sky-400 transition-colors"
+            className="text-brand-400/70 transition-colors hover:text-brand-400"
           >
             Lidor Eliya
           </a>
         </div>
       </footer>
-
-      {/* DevOps Tux — watches your cursor */}
-      <div className="pointer-events-none fixed bottom-2 left-6 z-20 hidden xl:block">
-        <div className="relative">
-          {/* glow aura */}
-          <div className="absolute inset-x-4 bottom-8 top-16 rounded-[40%] bg-brand-500/25 blur-3xl animate-pulse-slow" />
-
-          {/* floating terminal */}
-          <div className="absolute -top-3 left-1/2 w-max max-w-[15rem] -translate-x-[35%] overflow-hidden rounded-xl border border-white/10 bg-ink-900/90 shadow-lift backdrop-blur-xl">
-            <div className="flex items-center gap-1.5 border-b border-white/5 px-3 py-1.5">
-              <span className="h-2 w-2 rounded-full bg-rose-400/80" />
-              <span className="h-2 w-2 rounded-full bg-amber-400/80" />
-              <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
-              <span className="ml-1 font-mono text-[0.6rem] text-white/40">tux@vcf:~</span>
-            </div>
-            <div className="px-3 py-2 font-mono text-[0.72rem] leading-none text-emerald-300">
-              $ kubectl apply -f cluster.yaml
-              <span className="ml-0.5 inline-block animate-caret">▌</span>
-            </div>
-          </div>
-
-          <TuxMascot className="relative h-56 w-auto animate-float drop-shadow-[0_22px_45px_rgba(0,0,0,0.6)] 2xl:h-64" />
-        </div>
-      </div>
     </div>
   );
 }

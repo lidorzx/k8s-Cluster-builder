@@ -36,8 +36,8 @@ export function TuxMascot({ className }: TuxMascotProps) {
         const d = Math.hypot(dx, dy) || 1;
 
         // Whole-body lean toward the cursor (feet stay planted).
-        const lean = Math.max(-7, Math.min(7, (dx / Math.max(r.width, 1)) * 14));
-        const shiftY = Math.max(-4, Math.min(5, (dy / Math.max(r.height, 1)) * 8));
+        const lean = Math.max(-10, Math.min(10, (dx / Math.max(r.width, 1)) * 18));
+        const shiftY = Math.max(-5, Math.min(7, (dy / Math.max(r.height, 1)) * 10));
         if (leanRef.current) {
           leanRef.current.style.transform = `rotate(${lean}deg) translate(0px, ${shiftY}px)`;
         }
