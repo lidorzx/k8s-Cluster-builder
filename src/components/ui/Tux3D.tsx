@@ -7,25 +7,6 @@ import { TuxMascot } from './TuxMascot';
 // Shared, normalized cursor position (-1..1 across the viewport).
 const pointer = { x: 0, y: 0 };
 
-const FRAME = '#2b2f3a';
-
-function Lens({ x, ry }: { x: number; ry: number }) {
-  return (
-    <group position={[x, 0, 0]} rotation={[0, ry, 0]}>
-      {/* flat, sleek wraparound lens (reflective blue glass) */}
-      <mesh scale={[0.22, 0.17, 0.04]}>
-        <sphereGeometry args={[1, 40, 24]} />
-        <meshPhysicalMaterial color="#0a1830" metalness={0.55} roughness={0.05} clearcoat={1} clearcoatRoughness={0.05} />
-      </mesh>
-      {/* glowing eye just inside the lens */}
-      <mesh position={[0, 0, 0.05]}>
-        <sphereGeometry args={[0.05, 24, 24]} />
-        <meshStandardMaterial color="#062b27" emissive="#22d3ee" emissiveIntensity={3.6} toneMapped={false} />
-      </mesh>
-    </group>
-  );
-}
-
 function EarCup({ x }: { x: number }) {
   const side = Math.sign(x) || 1;
   return (
@@ -107,28 +88,25 @@ function Penguin() {
         <meshStandardMaterial color="#f59e0b" roughness={0.5} />
       </mesh>
 
-      {/* sunglasses — sleek, flat, slightly wrapped */}
-      <group position={[0, 0.46, 0.82]}>
-        <Lens x={-0.24} ry={0.32} />
-        <Lens x={0.24} ry={-0.32} />
-        {/* bridge */}
-        <mesh position={[0, 0.0, 0.05]}>
-          <boxGeometry args={[0.2, 0.04, 0.05]} />
-          <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
+      {/* face — classic Tux white eye-patches with glowing cyber eyes */}
+      <group position={[0, 0.42, 0.84]}>
+        {/* white patches (close-set, slightly angled in) */}
+        <mesh position={[-0.15, 0, 0]} rotation={[0, 0.25, 0.1]} scale={[0.16, 0.21, 0.12]}>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#fbfdff" roughness={0.5} />
         </mesh>
-        {/* brow bar */}
-        <mesh position={[0, 0.09, 0.04]}>
-          <boxGeometry args={[0.64, 0.04, 0.05]} />
-          <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
+        <mesh position={[0.15, 0, 0]} rotation={[0, -0.25, -0.1]} scale={[0.16, 0.21, 0.12]}>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#fbfdff" roughness={0.5} />
         </mesh>
-        {/* temple arms */}
-        <mesh position={[-0.45, 0.05, -0.18]} rotation={[0, 0.7, 0]}>
-          <boxGeometry args={[0.42, 0.035, 0.045]} />
-          <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
+        {/* glowing cyan eyes (inner-set for the classic Tux look) */}
+        <mesh position={[-0.1, -0.02, 0.09]}>
+          <sphereGeometry args={[0.058, 24, 24]} />
+          <meshStandardMaterial color="#062b27" emissive="#22d3ee" emissiveIntensity={3.6} toneMapped={false} />
         </mesh>
-        <mesh position={[0.45, 0.05, -0.18]} rotation={[0, -0.7, 0]}>
-          <boxGeometry args={[0.42, 0.035, 0.045]} />
-          <meshStandardMaterial color={FRAME} metalness={0.9} roughness={0.25} />
+        <mesh position={[0.1, -0.02, 0.09]}>
+          <sphereGeometry args={[0.058, 24, 24]} />
+          <meshStandardMaterial color="#062b27" emissive="#22d3ee" emissiveIntensity={3.6} toneMapped={false} />
         </mesh>
       </group>
 

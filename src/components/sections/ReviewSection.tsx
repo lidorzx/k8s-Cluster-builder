@@ -62,6 +62,79 @@ function DryRunHint({ fileName }: { fileName: string }) {
   );
 }
 
+// A dark command block with a one-click copy button.
+function Cmd({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+  return (
+    <div className="relative">
+      <pre className="overflow-x-auto rounded-lg bg-ink-900 px-3 py-2 pr-14 font-mono text-xs leading-relaxed text-emerald-300">{text}</pre>
+      <button
+        type="button"
+        onClick={copy}
+        className="absolute right-1.5 top-1.5 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[0.65rem] font-medium text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+    </div>
+  );
+}
+
+// Day-2: how to retrieve and use the guest cluster's kubeconfig. (The builder
+// can't fetch a real kubeconfig — the cluster doesn't exist yet — so it hands
+// you the exact commands, pre-filled with your cluster name + namespace.)
+function KubeconfigHint({ name, namespace }: { name: string; namespace: string }) {
+  const [open, setOpen] = useState(false);
+  const cn = name || 'my-cluster';
+  const ns = namespace || '<namespace>';
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/60">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left transition-colors hover:bg-emerald-100/50"
+      >
+        <svg className="h-3.5 w-3.5 flex-shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+        </svg>
+        <span className="flex-1 text-xs font-medium text-emerald-700">Get the kubeconfig & connect (after the cluster is Ready)</span>
+        <svg className={`h-3 w-3 text-emerald-600 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="space-y-2.5 border-t border-emerald-200 px-3 py-3">
+          <p className="text-xs text-ink-600">
+            1. Confirm the cluster has finished provisioning (look for <span className="font-mono text-ink-700">Provisioned</span>):
+          </p>
+          <Cmd text={`kubectl get cluster ${cn} -n ${ns}`} />
+          <p className="text-xs text-ink-600">
+            2. Export its kubeconfig from the Supervisor (the secret is named <span className="font-mono text-ink-700">{cn}-kubeconfig</span>):
+          </p>
+          <Cmd text={`kubectl get secret ${cn}-kubeconfig -n ${ns} \\\n  -o jsonpath='{.data.value}' | base64 -d > ${cn}.kubeconfig`} />
+          <p className="text-xs text-ink-600">3. Use it:</p>
+          <Cmd text={`export KUBECONFIG="$PWD/${cn}.kubeconfig"\nkubectl get nodes`} />
+          <p className="text-xs text-ink-600">
+            Alternatively, log in with the vSphere plugin (prompts for a password, no secret export needed):
+          </p>
+          <Cmd text={`kubectl vsphere login --server=<SUPERVISOR-IP> \\\n  --tanzu-kubernetes-cluster-name ${cn} \\\n  --tanzu-kubernetes-cluster-namespace ${ns} \\\n  --vsphere-username <USERNAME> --insecure-skip-tls-verify`} />
+          <p className="text-xs text-ink-400">
+            Run these against the VCF Supervisor (the same context you applied the Cluster to).
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
   const state = useClusterClassStore();
   const isDefault = state.configType === 'default';
@@ -231,6 +304,7 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
       )}
 
       <DryRunHint fileName={fileName} />
+      <KubeconfigHint name={state.name} namespace={state.namespace} />
     </SectionCard>
   );
 }
