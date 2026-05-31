@@ -7,23 +7,6 @@ import { TuxMascot } from './TuxMascot';
 // Shared, normalized cursor position (-1..1 across the viewport).
 const pointer = { x: 0, y: 0 };
 
-function EarCup({ x }: { x: number }) {
-  const side = Math.sign(x) || 1;
-  return (
-    <group position={[x, 0.28, 0]}>
-      <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.2, 0.2, 0.14, 32]} />
-        <meshStandardMaterial color="#1c1c25" metalness={0.55} roughness={0.4} />
-      </mesh>
-      {/* brand-glow ring on the outer face */}
-      <mesh position={[side * 0.08, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[0.12, 0.018, 14, 36]} />
-        <meshStandardMaterial color="#6366f1" emissive="#6366f1" emissiveIntensity={1.6} toneMapped={false} />
-      </mesh>
-    </group>
-  );
-}
-
 function Penguin() {
   const group = useRef<THREE.Group>(null!);
 
@@ -120,13 +103,24 @@ function Penguin() {
         </mesh>
       </group>
 
-      {/* headphones — band hugging the head + ear cups on the sides */}
-      <mesh position={[0, 0.28, 0]}>
-        <torusGeometry args={[0.99, 0.07, 16, 64, Math.PI]} />
-        <meshStandardMaterial color="#1b1b22" metalness={0.55} roughness={0.4} />
-      </mesh>
-      <EarCup x={-0.95} />
-      <EarCup x={0.95} />
+      {/* knit beanie */}
+      <group>
+        {/* cap */}
+        <mesh scale={[1.05, 1.4, 1.0]} castShadow>
+          <sphereGeometry args={[1, 48, 32, 0, Math.PI * 2, 0, 1.2]} />
+          <meshStandardMaterial color="#312e81" roughness={0.92} metalness={0} />
+        </mesh>
+        {/* folded cuff */}
+        <mesh position={[0, 0.55, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.93, 0.09, 16, 48]} />
+          <meshStandardMaterial color="#4338ca" roughness={0.85} />
+        </mesh>
+        {/* pom-pom */}
+        <mesh position={[0, 1.48, 0]} castShadow>
+          <sphereGeometry args={[0.13, 20, 20]} />
+          <meshStandardMaterial color="#c7d2fe" roughness={0.95} />
+        </mesh>
+      </group>
     </group>
   );
 }
