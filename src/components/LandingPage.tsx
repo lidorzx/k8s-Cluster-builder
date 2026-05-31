@@ -241,14 +241,27 @@ export function LandingPage({ onStart }: LandingPageProps) {
         </div>
       </footer>
 
-      {/* Tux mascot — sits in the corner and watches your cursor */}
-      <div className="pointer-events-none fixed bottom-5 left-5 z-20 hidden items-end gap-3 xl:flex">
-        <div className="relative animate-float">
-          <div className="absolute -inset-6 rounded-full bg-brand-500/15 blur-2xl" />
-          <TuxMascot className="relative h-32 w-auto drop-shadow-[0_12px_30px_rgba(0,0,0,0.55)]" />
-        </div>
-        <div className="mb-6 rounded-2xl rounded-bl-sm border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur">
-          Let's build a cluster
+      {/* DevOps Tux — watches your cursor */}
+      <div className="pointer-events-none fixed bottom-2 left-6 z-20 hidden xl:block">
+        <div className="relative">
+          {/* glow aura */}
+          <div className="absolute inset-x-4 bottom-8 top-16 rounded-[40%] bg-brand-500/25 blur-3xl animate-pulse-slow" />
+
+          {/* floating terminal */}
+          <div className="absolute -top-3 left-1/2 w-max max-w-[15rem] -translate-x-[35%] overflow-hidden rounded-xl border border-white/10 bg-ink-900/90 shadow-lift backdrop-blur-xl">
+            <div className="flex items-center gap-1.5 border-b border-white/5 px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-rose-400/80" />
+              <span className="h-2 w-2 rounded-full bg-amber-400/80" />
+              <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+              <span className="ml-1 font-mono text-[0.6rem] text-white/40">tux@vcf:~</span>
+            </div>
+            <div className="px-3 py-2 font-mono text-[0.72rem] leading-none text-emerald-300">
+              $ kubectl apply -f cluster.yaml
+              <span className="ml-0.5 inline-block animate-caret">▌</span>
+            </div>
+          </div>
+
+          <TuxMascot className="relative h-56 w-auto animate-float drop-shadow-[0_22px_45px_rgba(0,0,0,0.6)] 2xl:h-64" />
         </div>
       </div>
     </div>
