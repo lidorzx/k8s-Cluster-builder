@@ -4,8 +4,7 @@ import { FieldHint, KubectlBlock } from '../ui/FieldHint';
 import { VolumeEditor } from '../ui/VolumeEditor';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 
-const INPUT_CLASS =
-  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5';
+const INPUT_CLASS = 'ui-input';
 
 interface GeneralSettingsSectionProps {
   stepNumber: number;

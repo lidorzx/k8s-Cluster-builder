@@ -1,7 +1,6 @@
 import type { Volume } from '../../types/cluster';
 
-const INPUT_CLASS =
-  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5';
+const INPUT_CLASS = 'ui-input-sm';
 
 interface VolumeEditorProps {
   volumes: Volume[];
@@ -17,9 +16,9 @@ export function VolumeEditor({ volumes, onAdd, onRemove, onUpdate }: VolumeEdito
         <p className="text-sm italic text-gray-400">No volumes configured.</p>
       ) : (
         volumes.map((vol) => (
-          <div key={vol.id} className="border border-gray-200 p-3 bg-gray-50 space-y-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-mono text-gray-500">{vol.name}</span>
+          <div key={vol.id} className="space-y-2 rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="font-mono text-xs text-ink-500">{vol.name}</span>
               <button
                 type="button"
                 onClick={() => onRemove(vol.id)}
@@ -74,12 +73,11 @@ export function VolumeEditor({ volumes, onAdd, onRemove, onUpdate }: VolumeEdito
         ))
       )}
       <div className="pt-1">
-        <button
-          type="button"
-          onClick={onAdd}
-          className="px-4 py-1.5 text-sm text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] font-medium transition-colors"
-        >
-          ADD VOLUME
+        <button type="button" onClick={onAdd} className="ui-btn-outline">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Add volume
         </button>
       </div>
     </div>

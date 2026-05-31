@@ -7,8 +7,7 @@ interface Props {
   onClose: () => void;
 }
 
-const INPUT =
-  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5 bg-white';
+const INPUT = 'ui-input';
 
 function genSuffix(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -78,28 +77,28 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-ink-950/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
 
       {/* Dialog */}
-      <div className="relative bg-white w-[600px] max-h-[90vh] flex flex-col shadow-xl">
+      <div className="relative flex max-h-[90vh] w-[600px] flex-col overflow-hidden rounded-2xl bg-white shadow-lift animate-fade-in-up">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-base font-semibold text-gray-900">Add Node Pool</h2>
+        <div className="flex items-center justify-between border-b border-ink-100 bg-white px-6 py-4">
+          <h2 className="text-base font-semibold text-ink-900">Add Node Pool</h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="rounded-lg p-1 text-ink-400 transition-colors hover:bg-ink-50 hover:text-ink-600"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Step indicator */}
-        <div className="flex items-center px-6 py-3 border-b border-gray-200 bg-white gap-0">
+        <div className="flex items-center gap-0 border-b border-ink-100 bg-ink-50/50 px-6 py-3">
           {(['Configuration', 'Review and Confirm'] as const).map((label, i) => {
             const stepNum = i + 1;
             const active = step === stepNum;
@@ -108,27 +107,25 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
               <div key={label} className="flex items-center">
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                       active
-                        ? 'bg-sky-600 text-white'
+                        ? 'bg-brand-gradient text-white shadow-glow'
                         : done
-                        ? 'bg-sky-100 text-[#0072c6] border border-sky-300'
-                        : 'bg-gray-200 text-gray-500'
+                        ? 'border border-brand-300 bg-brand-100 text-brand-600'
+                        : 'bg-ink-200 text-ink-500'
                     }`}
                   >
                     {stepNum}
                   </div>
                   <span
                     className={`text-xs font-medium ${
-                      active ? 'text-sky-700' : done ? 'text-sky-500' : 'text-gray-400'
+                      active ? 'text-brand-700' : done ? 'text-brand-500' : 'text-ink-400'
                     }`}
                   >
                     {label}
                   </span>
                 </div>
-                {i < 1 && (
-                  <div className="w-8 h-px bg-gray-300 mx-2" />
-                )}
+                {i < 1 && <div className="mx-2 h-px w-8 bg-ink-200" />}
               </div>
             );
           })}
@@ -270,9 +267,12 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
                     <button
                       type="button"
                       onClick={addVolume}
-                      className="text-xs text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] px-3 py-1 font-medium transition-colors"
+                      className="inline-flex items-center gap-1 rounded-lg border border-brand-300 px-3 py-1 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50"
                     >
-                      + ADD VOLUME
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add volume
                     </button>
                   </div>
                 )}
@@ -282,8 +282,8 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
 
           {step === 2 && (
             <div>
-              <p className="text-sm text-gray-500 mb-4">Review the node pool configuration before adding.</p>
-              <div className="border border-gray-200">
+              <p className="mb-4 text-sm text-ink-500">Review the node pool configuration before adding.</p>
+              <div className="overflow-hidden rounded-xl border border-ink-200">
                 {[
                   { label: 'Name', value: name },
                   { label: 'Class', value: poolClass },
@@ -294,9 +294,9 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
                   { label: 'Content Library', value: contentLibrary || '—' },
                   { label: 'Volumes', value: volumes.length > 0 ? `${volumes.length} volume(s)` : '—' },
                 ].map(({ label, value }) => (
-                  <div key={label} className="flex border-b border-gray-100 last:border-b-0">
-                    <div className="w-40 flex-shrink-0 px-4 py-2.5 bg-gray-50 text-sm text-gray-600 font-medium">{label}</div>
-                    <div className="flex-1 px-4 py-2.5 text-sm text-gray-800">{value}</div>
+                  <div key={label} className="flex border-b border-ink-100 last:border-b-0">
+                    <div className="w-40 flex-shrink-0 bg-ink-50 px-4 py-2.5 text-sm font-medium text-ink-600">{label}</div>
+                    <div className="flex-1 break-all px-4 py-2.5 text-sm text-ink-800">{value}</div>
                   </div>
                 ))}
               </div>
@@ -305,38 +305,22 @@ export function AddNodepoolModal({ clusterName, onAdd, onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-6 py-3 border-t border-gray-200 bg-gray-50">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 text-sm text-gray-700 border border-gray-300 hover:bg-gray-100 font-medium transition-colors"
-          >
-            CANCEL
+        <div className="flex items-center justify-end gap-2 border-t border-ink-100 bg-ink-50/50 px-6 py-3">
+          <button type="button" onClick={onClose} className="ui-btn-ghost">
+            Cancel
           </button>
           {step === 2 && (
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="px-4 py-1.5 text-sm text-gray-700 border border-gray-300 hover:bg-gray-100 font-medium transition-colors"
-            >
-              BACK
+            <button type="button" onClick={() => setStep(1)} className="ui-btn-ghost">
+              Back
             </button>
           )}
           {step === 1 ? (
-            <button
-              type="button"
-              onClick={() => setStep(2)}
-              className="px-4 py-1.5 text-sm text-white bg-[#0072c6] hover:bg-[#005fa3] font-medium transition-colors"
-            >
-              NEXT
+            <button type="button" onClick={() => setStep(2)} className="ui-btn-primary">
+              Next
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={handleAdd}
-              className="px-4 py-1.5 text-sm text-white bg-[#0072c6] hover:bg-[#005fa3] font-medium transition-colors"
-            >
-              ADD
+            <button type="button" onClick={handleAdd} className="ui-btn-primary">
+              Add pool
             </button>
           )}
         </div>

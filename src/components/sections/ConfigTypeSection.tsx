@@ -29,16 +29,16 @@ export function ConfigTypeSection({ stepNumber, id }: ConfigTypeSectionProps) {
       description={configType === 'default' ? 'Default Configuration' : 'Custom Configuration'}
       id={id}
     >
-      <div className="space-y-3 pt-1">
+      <div className="grid gap-3 pt-1 sm:grid-cols-2">
         {options.map((opt) => {
           const active = configType === opt.value;
           return (
             <label
               key={opt.value}
-              className={`flex items-start gap-3 p-4 border cursor-pointer transition-colors ${
+              className={`group relative cursor-pointer overflow-hidden rounded-xl border p-4 transition-all ${
                 active
-                  ? 'border-[#0072c6] bg-[#f0f7ff]'
-                  : 'border-gray-200 hover:border-[#0072c6]/40 hover:bg-[#f8fbff]'
+                  ? 'border-brand-400 bg-brand-50/70 shadow-glow'
+                  : 'border-ink-200 bg-white hover:border-brand-300 hover:shadow-card'
               }`}
             >
               <input
@@ -47,14 +47,25 @@ export function ConfigTypeSection({ stepNumber, id }: ConfigTypeSectionProps) {
                 value={opt.value}
                 checked={active}
                 onChange={() => update({ configType: opt.value })}
-                className="mt-0.5 w-4 h-4 text-[#0072c6] border-gray-300 flex-shrink-0"
+                className="sr-only"
               />
-              <div>
-                <span className={`text-sm font-medium ${active ? 'text-[#0072c6]' : 'text-gray-800'}`}>
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-semibold ${active ? 'text-brand-700' : 'text-ink-800'}`}>
                   {opt.label}
                 </span>
-                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{opt.description}</p>
+                <span
+                  className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all ${
+                    active ? 'border-transparent bg-brand-gradient' : 'border-ink-300 bg-white'
+                  }`}
+                >
+                  {active && (
+                    <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </span>
               </div>
+              <p className="mt-1 text-xs leading-relaxed text-ink-500">{opt.description}</p>
             </label>
           );
         })}

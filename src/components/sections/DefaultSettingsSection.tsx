@@ -4,8 +4,7 @@ import { FieldHint, KubectlBlock } from '../ui/FieldHint';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 import { useState } from 'react';
 
-const INPUT =
-  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5';
+const INPUT = 'ui-input';
 
 interface Props {
   stepNumber: number;
@@ -19,7 +18,7 @@ function ContentLibraryHint() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 text-xs text-[#0072c6] hover:underline transition-colors"
+        className="flex items-center gap-1 text-xs text-brand-600 hover:underline transition-colors"
       >
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -30,7 +29,7 @@ function ContentLibraryHint() {
         </svg>
       </button>
       {open && (
-        <div className="mt-2 border border-[#b8d9f5] bg-[#f0f7ff] p-3">
+        <div className="mt-2 border border-brand-200 bg-brand-50 p-3">
           <p className="text-xs text-gray-600 mb-2">Run this on the VCF Supervisor cluster:</p>
           <pre className="text-xs font-mono bg-gray-900 text-green-400 px-3 py-2 overflow-x-auto">{`kubectl get contentlibraries -A`}</pre>
           <p className="text-xs text-gray-500 mt-1.5">

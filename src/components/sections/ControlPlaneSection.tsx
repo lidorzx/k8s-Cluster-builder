@@ -5,8 +5,7 @@ import { FieldHint } from '../ui/FieldHint';
 import { VolumeEditor } from '../ui/VolumeEditor';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 
-const INPUT_CLASS =
-  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5';
+const INPUT_CLASS = 'ui-input';
 
 interface ControlPlaneSectionProps {
   stepNumber: number;
@@ -20,7 +19,7 @@ function ContentLibraryHint() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 text-xs text-[#0072c6] hover:text-sky-800 transition-colors"
+        className="flex items-center gap-1 text-xs text-brand-600 hover:text-sky-800 transition-colors"
       >
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -4,8 +4,7 @@ import { FieldHint, KubectlBlock } from '../ui/FieldHint';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 import type { RegistryTrust } from '../../types/cluster';
 
-const INPUT =
-  'block w-full text-sm border border-gray-300 focus:border-[#0072c6] focus:outline-none focus:ring-1 focus:ring-[#0072c6] px-3 py-1.5';
+const INPUT = 'ui-input';
 
 interface Props {
   stepNumber: number;
@@ -22,10 +21,10 @@ function RegistryCard({
   onRemove: () => void;
 }) {
   return (
-    <div className="border border-gray-200 bg-gray-50 p-4 space-y-3">
+    <div className="space-y-3 rounded-xl border border-ink-200 bg-ink-50/60 p-4">
       {/* Header row: label + remove */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-gray-500">
+        <span className="font-mono text-xs text-ink-500">
           {entry.registryHost || 'new registry'}
         </span>
         <button
@@ -68,10 +67,10 @@ function RegistryCard({
                 key={opt.value}
                 type="button"
                 onClick={() => onUpdate({ mode: opt.value })}
-                className={`flex-1 px-3 py-1.5 text-xs font-medium border transition-colors ${
+                className={`flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
                   active
-                    ? 'border-[#0072c6] bg-[#f0f7ff] text-[#0072c6]'
-                    : 'border-gray-300 bg-white text-gray-500 hover:border-[#0072c6]/40'
+                    ? 'border-brand-400 bg-brand-50 text-brand-700 shadow-soft'
+                    : 'border-ink-200 bg-white text-ink-500 hover:border-brand-300'
                 }`}
               >
                 {opt.label}
@@ -146,7 +145,7 @@ function RegistryCard({
 function SubHeading({ step, title, subtitle }: { step: string; title: string; subtitle: string }) {
   return (
     <div className="flex items-baseline gap-2 mb-3">
-      <span className="text-xs font-bold text-[#0072c6]">{step}</span>
+      <span className="text-xs font-bold text-brand-600">{step}</span>
       <div>
         <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
         <p className="text-xs text-gray-400">{subtitle}</p>
@@ -240,15 +239,12 @@ export function RegistryTrustSection({ stepNumber, id }: Props) {
             ))
           )}
 
-          <div className="pt-1">
-            <button
-              type="button"
-              onClick={addRegistryTrust}
-              className="px-4 py-1.5 text-sm text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] font-medium transition-colors"
-            >
-              ADD REGISTRY
-            </button>
-          </div>
+          <button type="button" onClick={addRegistryTrust} className="ui-btn-outline">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add registry
+          </button>
         </div>
 
         {/* ── Authentication (pull secret) ── */}

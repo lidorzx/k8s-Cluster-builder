@@ -11,3 +11,81 @@ html, body, #root {
   margin: 0;
   padding: 0;
 }
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: theme('fontFamily.sans');
+    color: theme('colors.ink.900');
+  }
+  ::selection {
+    background: rgb(99 102 241 / 0.22);
+  }
+  /* Light scrollbars for the workspace */
+  .scroll-light::-webkit-scrollbar { width: 10px; height: 10px; }
+  .scroll-light::-webkit-scrollbar-track { background: transparent; }
+  .scroll-light::-webkit-scrollbar-thumb {
+    background: rgb(148 163 184 / 0.5); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box;
+  }
+  .scroll-light::-webkit-scrollbar-thumb:hover { background: rgb(100 116 139 / 0.7); background-clip: padding-box; }
+  /* Dark scrollbars for the code panel */
+  .scroll-dark::-webkit-scrollbar { width: 10px; height: 10px; }
+  .scroll-dark::-webkit-scrollbar-track { background: transparent; }
+  .scroll-dark::-webkit-scrollbar-thumb {
+    background: rgb(99 102 241 / 0.35); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box;
+  }
+  .scroll-dark::-webkit-scrollbar-thumb:hover { background: rgb(129 140 248 / 0.6); background-clip: padding-box; }
+}
+
+@layer components {
+  /* ── Inputs ── */
+  .ui-input {
+    @apply block w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900
+           placeholder:text-ink-300 shadow-soft transition
+           focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15;
+  }
+  .ui-input-sm {
+    @apply block w-full rounded-md border border-ink-200 bg-white px-2.5 py-1.5 text-sm text-ink-900
+           placeholder:text-ink-300 transition
+           focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15;
+  }
+
+  /* ── Buttons ── */
+  .ui-btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold
+           transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .ui-btn-primary {
+    @apply ui-btn text-white bg-brand-gradient bg-[length:200%_200%] shadow-card
+           hover:shadow-glow hover:bg-[position:100%_50%];
+  }
+  .ui-btn-outline {
+    @apply ui-btn border border-brand-300 text-brand-700 bg-white hover:bg-brand-50 hover:border-brand-400;
+  }
+  .ui-btn-ghost {
+    @apply ui-btn border border-ink-200 text-ink-600 bg-white hover:bg-ink-50 hover:text-ink-900 hover:border-ink-300;
+  }
+
+  /* ── Surfaces ── */
+  .ui-card {
+    @apply rounded-2xl border border-ink-100 bg-white shadow-card;
+  }
+  .ui-chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  /* ── Text ── */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-500 to-sky-400;
+  }
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl;
+  }
+  .glass-dark {
+    @apply bg-ink-900/70 backdrop-blur-xl;
+  }
+}

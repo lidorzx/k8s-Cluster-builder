@@ -24,9 +24,9 @@ export function NodePoolsSection({ stepNumber, id }: NodePoolsSectionProps) {
       >
         <div className="space-y-3">
           {/* Pool list */}
-          <div className="border border-gray-200">
+          <div className="overflow-hidden rounded-xl border border-ink-200">
             {/* Table header */}
-            <div className="flex items-center px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wide">
+            <div className="flex items-center border-b border-ink-200 bg-ink-50 px-4 py-2 text-xs font-medium uppercase tracking-wide text-ink-500">
               <span className="flex-1">Name</span>
               <span className="w-20 text-center">Replicas</span>
               <span className="w-20 text-center">Class</span>
@@ -36,22 +36,22 @@ export function NodePoolsSection({ stepNumber, id }: NodePoolsSectionProps) {
             {workerPools.map((pool) => (
               <div
                 key={pool.id}
-                className="flex items-center px-4 py-2.5 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                className="flex items-center border-b border-ink-100 px-4 py-2.5 transition-colors last:border-b-0 hover:bg-brand-50/40"
               >
-                <span className="flex-1 text-sm font-mono text-gray-800 truncate">
+                <span className="flex-1 truncate font-mono text-sm text-ink-800">
                   {poolDisplayName(pool.name)}
                 </span>
-                <span className="w-20 text-center text-sm text-gray-600">{pool.replicas}</span>
-                <span className="w-20 text-center text-sm text-gray-500 truncate">{pool.poolClass}</span>
-                <div className="w-8 flex justify-end">
+                <span className="w-20 text-center text-sm text-ink-600">{pool.replicas}</span>
+                <span className="w-20 truncate text-center text-sm text-ink-500">{pool.poolClass}</span>
+                <div className="flex w-8 justify-end">
                   {workerPools.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeWorkerPool(pool.id)}
-                      className="text-gray-300 hover:text-red-500 transition-colors"
+                      className="text-ink-300 transition-colors hover:text-rose-500"
                       aria-label="Remove pool"
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
@@ -62,15 +62,12 @@ export function NodePoolsSection({ stepNumber, id }: NodePoolsSectionProps) {
           </div>
 
           {/* Add button */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowModal(true)}
-              className="px-4 py-1.5 text-sm text-[#0072c6] border border-[#0072c6] hover:bg-[#f0f7ff] font-medium transition-colors"
-            >
-              ADD NODE POOL
-            </button>
-          </div>
+          <button type="button" onClick={() => setShowModal(true)} className="ui-btn-outline">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add node pool
+          </button>
         </div>
       </SectionCard>
 
