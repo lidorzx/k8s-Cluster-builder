@@ -122,7 +122,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <Suspense
             fallback={
               <div className="flex h-full items-center justify-center">
-                <TuxMascot className="h-[64vh] w-auto opacity-90" />
+                <div className="h-44 w-44 animate-pulse-slow rounded-full bg-brand-500/25 blur-3xl" />
               </div>
             }
           >
