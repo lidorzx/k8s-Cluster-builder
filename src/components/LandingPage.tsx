@@ -1,4 +1,5 @@
 import { LogoMark } from './ui/LogoMark';
+import { TuxMascot } from './ui/TuxMascot';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -239,6 +240,17 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </a>
         </div>
       </footer>
+
+      {/* Tux mascot — sits in the corner and watches your cursor */}
+      <div className="pointer-events-none fixed bottom-5 left-5 z-20 hidden items-end gap-3 xl:flex">
+        <div className="relative animate-float">
+          <div className="absolute -inset-6 rounded-full bg-brand-500/15 blur-2xl" />
+          <TuxMascot className="relative h-32 w-auto drop-shadow-[0_12px_30px_rgba(0,0,0,0.55)]" />
+        </div>
+        <div className="mb-6 rounded-2xl rounded-bl-sm border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur">
+          Let's build a cluster
+        </div>
+      </div>
     </div>
   );
 }

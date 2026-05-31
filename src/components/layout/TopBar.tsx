@@ -3,11 +3,9 @@ import { LogoMark } from '../ui/LogoMark';
 
 interface TopBarProps {
   onBack: () => void;
-  showTux: boolean;
-  onToggleTux: () => void;
 }
 
-export function TopBar({ onBack, showTux, onToggleTux }: TopBarProps) {
+export function TopBar({ onBack }: TopBarProps) {
   const resetToDefaults = useClusterClassStore((s) => s.resetToDefaults);
 
   const handleBack = () => {
@@ -47,22 +45,8 @@ export function TopBar({ onBack, showTux, onToggleTux }: TopBarProps) {
           </div>
         </div>
 
-        {/* Right: tux toggle + badges */}
+        {/* Right: badges */}
         <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={onToggleTux}
-            title={showTux ? 'Hide Tux' : 'Show Tux'}
-            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all ${
-              showTux
-                ? 'border-brand-200 bg-brand-50 text-brand-600 shadow-soft'
-                : 'border-ink-200 bg-white text-ink-400 hover:text-ink-600'
-            }`}
-          >
-            <span className={showTux ? '' : 'grayscale'}>🐧</span>
-            Tux
-          </button>
-
           <span className="ui-chip border border-brand-100 bg-brand-50 text-brand-600">Cluster API</span>
           <span className="ui-chip border border-ink-200 bg-ink-50 text-ink-500">VCF 9.x</span>
           <span className="text-xs text-ink-300">|</span>

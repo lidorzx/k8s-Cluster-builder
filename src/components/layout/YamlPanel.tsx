@@ -12,7 +12,7 @@ interface Tab {
   target: 'supervisor' | 'guest';
 }
 
-export function YamlPanel() {
+export function YamlPanel({ width }: { width: number }) {
   const state = useClusterClassStore();
   const [copied, setCopied] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -91,7 +91,10 @@ export function YamlPanel() {
     'flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white';
 
   return (
-    <div className="flex h-full w-[440px] flex-shrink-0 flex-col overflow-hidden border-l border-ink-800 bg-ink-950 text-white/90">
+    <div
+      style={{ width }}
+      className="flex h-full flex-shrink-0 flex-col overflow-hidden border-l border-ink-800 bg-ink-950 text-white/90"
+    >
 
       {/* Panel header */}
       <div className="flex flex-shrink-0 items-center gap-2 border-b border-white/5 bg-ink-900 px-3 py-2.5">
