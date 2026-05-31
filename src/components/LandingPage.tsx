@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { LogoMark } from './ui/LogoMark';
 import { TuxMascot } from './ui/TuxMascot';
+import { MatrixRain } from './ui/MatrixRain';
 
 // 3D Tux is heavy (three.js) — load it lazily and fall back to the SVG.
 const Tux3D = lazy(() => import('./ui/Tux3D'));
@@ -109,12 +110,24 @@ export function LandingPage({ onStart }: LandingPageProps) {
         <div className="pointer-events-none absolute inset-0">
           {/* spotlight beam from the top onto Tux */}
           <div className="absolute -top-40 right-[22%] h-[130vh] w-[480px] -rotate-12 bg-gradient-to-b from-white/12 via-white/5 to-transparent blur-2xl" />
-          {/* brand glow behind Tux */}
-          <div className="absolute right-[4%] top-[6%] h-[72vh] w-[48vw] rounded-full bg-brand-600/25 blur-3xl" />
-          <div className="absolute bottom-0 right-[12%] h-48 w-[44vw] rounded-[50%] bg-sky-500/20 blur-3xl" />
+          {/* brand glow behind Tux (kept subtle so the code rain reads) */}
+          <div className="absolute right-[4%] top-[6%] h-[72vh] w-[48vw] rounded-full bg-brand-600/15 blur-3xl" />
+          <div className="absolute bottom-0 right-[12%] h-48 w-[44vw] rounded-[50%] bg-sky-500/12 blur-3xl" />
           {/* faint grid + vignette */}
           <div className="absolute inset-0 bg-grid-light opacity-[0.04] [background-size:34px_34px]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,transparent_35%,rgba(0,0,0,0.55))]" />
+        </div>
+
+        {/* matrix code rain behind the penguin */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] hidden lg:block"
+          style={{
+            opacity: 0.9,
+            maskImage: 'linear-gradient(to right, transparent 0%, #000 40%, #000 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 40%, #000 100%)',
+          }}
+        >
+          <MatrixRain className="h-full w-full" />
         </div>
 
         {/* The star: a real-time 3D Tux that watches your cursor */}
