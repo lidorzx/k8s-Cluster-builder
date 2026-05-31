@@ -35,6 +35,20 @@ export interface RegistryTrust {
   secretKey: string;      // key within that secret
 }
 
+// The authentication half of connecting to a private registry: a
+// docker-registry (dockerconfigjson) pull secret. Unlike trust, this lives in
+// the GUEST cluster's workload namespace and is applied day-2, not to the
+// Supervisor. Generated as its own document, kept out of the Supervisor bundle.
+export interface RegistryAuth {
+  enabled: boolean;
+  secretName: string;     // e.g. "regcred"
+  namespace: string;      // workload namespace in the guest cluster
+  registryServer: string; // --docker-server, e.g. "artifactory.company.com"
+  username: string;
+  password: string;       // access token / password
+  email: string;          // optional
+}
+
 export interface ClusterFormState {
   configType: 'default' | 'custom';
   name: string;
@@ -55,6 +69,7 @@ export interface ClusterFormState {
   volumes: Volume[];
   registryTrust: RegistryTrust[];
   registryTrustSecretName: string;   // name of the Secret the builder generates for pasted CAs
+  registryAuth: RegistryAuth;
   controlPlane: {
     replicas: 1 | 3 | 5;
     osImageName: string;

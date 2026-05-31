@@ -37,6 +37,15 @@ export function validateState(state: ClusterFormState): ValidationError[] {
         if (!r.secretKey.trim()) errors.push({ field: label, message: 'Secret data key is required' });
       }
     });
+
+    const a = state.registryAuth;
+    if (a.enabled) {
+      if (!a.secretName.trim()) errors.push({ field: 'Pull Secret Name', message: 'Required' });
+      if (!a.namespace.trim()) errors.push({ field: 'Workload Namespace', message: 'Required' });
+      if (!a.registryServer.trim()) errors.push({ field: 'Registry Server', message: 'Required' });
+      if (!a.username.trim()) errors.push({ field: 'Registry Username', message: 'Required' });
+      if (!a.password.trim()) errors.push({ field: 'Registry Password / Token', message: 'Required' });
+    }
   }
 
   return errors;

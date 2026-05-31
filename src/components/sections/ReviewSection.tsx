@@ -180,13 +180,13 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
             ))}
           </Group>
 
-          {state.registryTrust.length > 0 && (
-            <Group title="Private Registry Trust">
+          {(state.registryTrust.length > 0 || state.registryAuth.enabled) && (
+            <Group title="Private Registry">
               {state.registryTrust.map((r, i) => (
                 <div key={r.id} className="border-b border-gray-100 last:border-b-0">
                   <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
                     <span className="text-xs font-semibold text-gray-600 font-mono">
-                      {r.registryHost || `registry-${i + 1}`}
+                      trust · {r.registryHost || `registry-${i + 1}`}
                     </span>
                   </div>
                   <Row label="Certificate source" value={r.mode === 'paste' ? 'Pasted (Secret generated)' : 'Existing secret'} />
@@ -197,6 +197,19 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
                   <Row label="Data key" value={r.mode === 'paste' ? r.caKey : r.secretKey} />
                 </div>
               ))}
+              {state.registryAuth.enabled && (
+                <div className="border-b border-gray-100 last:border-b-0">
+                  <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+                    <span className="text-xs font-semibold text-gray-600 font-mono">
+                      auth · pull secret (guest cluster)
+                    </span>
+                  </div>
+                  <Row label="Secret name" value={state.registryAuth.secretName} />
+                  <Row label="Workload namespace" value={state.registryAuth.namespace} />
+                  <Row label="Registry server" value={state.registryAuth.registryServer} />
+                  <Row label="Username" value={state.registryAuth.username} />
+                </div>
+              )}
             </Group>
           )}
         </div>

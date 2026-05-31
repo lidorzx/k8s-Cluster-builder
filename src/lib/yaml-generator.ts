@@ -3,14 +3,17 @@ import type { ClusterFormState, RegistryTrust, Volume } from '../types/cluster';
 
 const DUMP_OPTS = { noRefs: true, lineWidth: -1 };
 
+// btoa that is safe for arbitrary UTF-8 input.
+function base64Utf8(input: string): string {
+  return btoa(unescape(encodeURIComponent(input)));
+}
+
 // VKS expects the trust-secret value to be the PEM, base64-encoded twice:
 // the inner layer is what VKS decodes back to PEM, the outer layer is the
 // standard Kubernetes Secret `data` encoding. Mirrors `base64 -w0 ca.crt | base64 -w0`.
 function doubleBase64(pem: string): string {
   const normalized = pem.trim() + '\n';
-  // encodeURIComponent/unescape keeps btoa safe even if the PEM has non-ASCII bytes
-  const inner = btoa(unescape(encodeURIComponent(normalized)));
-  return btoa(inner);
+  return base64Utf8(base64Utf8(normalized));
 }
 
 // Registry entries that are complete enough to emit into the Cluster spec.
@@ -253,25 +256,64 @@ export function generateTrustSecretYaml(state: ClusterFormState): string | null 
   return yaml.dump(doc, DUMP_OPTS);
 }
 
+// Day-2 docker-registry pull secret for the GUEST cluster. Returns null unless
+// authentication is enabled and the required fields are present.
+export function generatePullSecretYaml(state: ClusterFormState): string | null {
+  const a = state.registryAuth;
+  if (!a.enabled) return null;
+  if (!a.registryServer.trim() || !a.username.trim() || !a.password.trim()) return null;
+
+  const auth = base64Utf8(`${a.username}:${a.password}`);
+  const authEntry: Record<string, string> = {
+    username: a.username,
+    password: a.password,
+    auth,
+  };
+  if (a.email.trim()) authEntry.email = a.email.trim();
+
+  const dockerconfigjson = JSON.stringify({
+    auths: { [a.registryServer.trim()]: authEntry },
+  });
+
+  const doc = {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: a.secretName,
+      namespace: a.namespace,
+    },
+    type: 'kubernetes.io/dockerconfigjson',
+    data: {
+      '.dockerconfigjson': base64Utf8(dockerconfigjson),
+    },
+  };
+
+  return yaml.dump(doc, DUMP_OPTS);
+}
+
 export interface YamlDoc {
   id: string;
   label: string;
   name: string;
   yamlText: string;
+  // Where this document is applied. Supervisor docs form the apply bundle;
+  // guest docs (the pull secret) target the workload cluster separately.
+  target: 'supervisor' | 'guest';
 }
 
 export function generateYamlDocs(state: ClusterFormState): YamlDoc[] {
   const docs: YamlDoc[] = [];
 
   // The CA trust secret must exist before the Cluster references it, so it
-  // comes first in the multi-document manifest.
+  // comes first in the Supervisor bundle.
   const secretYaml = generateTrustSecretYaml(state);
   if (secretYaml) {
     docs.push({
       id: 'trust-secret',
-      label: 'Secret',
+      label: 'Trust Secret',
       name: state.registryTrustSecretName,
       yamlText: secretYaml,
+      target: 'supervisor',
     });
   }
 
@@ -280,7 +322,20 @@ export function generateYamlDocs(state: ClusterFormState): YamlDoc[] {
     label: 'Cluster',
     name: state.name,
     yamlText: generateYaml(state),
+    target: 'supervisor',
   });
+
+  // Pull secret targets the guest cluster, so it is a standalone document.
+  const pullSecretYaml = generatePullSecretYaml(state);
+  if (pullSecretYaml) {
+    docs.push({
+      id: 'pull-secret',
+      label: 'Pull Secret',
+      name: state.registryAuth.secretName,
+      yamlText: pullSecretYaml,
+      target: 'guest',
+    });
+  }
 
   return docs;
 }

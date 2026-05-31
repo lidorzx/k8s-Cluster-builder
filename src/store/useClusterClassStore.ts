@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ClusterFormState, RegistryTrust, Volume, WorkerPool } from '../types/cluster';
+import type { ClusterFormState, RegistryAuth, RegistryTrust, Volume, WorkerPool } from '../types/cluster';
 import { defaultState } from '../lib/capv-defaults';
 
 function genId(): string {
@@ -32,6 +32,7 @@ interface ClusterActions {
   addRegistryTrust: () => void;
   removeRegistryTrust: (id: string) => void;
   updateRegistryTrust: (id: string, partial: Partial<RegistryTrust>) => void;
+  updateRegistryAuth: (partial: Partial<RegistryAuth>) => void;
   resetToDefaults: () => void;
 }
 
@@ -200,6 +201,11 @@ export const useClusterClassStore = create<StoreState>((set) => ({
       registryTrust: state.registryTrust.map((r) =>
         r.id === id ? { ...r, ...partial } : r
       ),
+    })),
+
+  updateRegistryAuth: (partial) =>
+    set((state) => ({
+      registryAuth: { ...state.registryAuth, ...partial },
     })),
 
   resetToDefaults: () => set({ ...defaultState }),

@@ -20,6 +20,15 @@ export const defaultState: ClusterFormState = {
   volumes: [],
   registryTrust: [],
   registryTrustSecretName: 'registry-ca-trust-secret',
+  registryAuth: {
+    enabled: false,
+    secretName: 'regcred',
+    namespace: 'default',
+    registryServer: '',
+    username: '',
+    password: '',
+    email: '',
+  },
   controlPlane: {
     replicas: 1,
     osImageName: 'photon',
