@@ -135,6 +135,52 @@ function KubeconfigHint({ name, namespace }: { name: string; namespace: string }
   );
 }
 
+// Day-2: the pull secret targets the GUEST cluster, so it's applied separately from
+// the Supervisor bundle — and the Secret alone does nothing until a pod references it.
+function PullSecretHint({ secretName, namespace }: { secretName: string; namespace: string }) {
+  const [open, setOpen] = useState(false);
+  const sn = secretName || 'regcred';
+  const ns = namespace || 'default';
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl border border-amber-200 bg-amber-50/60">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left transition-colors hover:bg-amber-100/50"
+      >
+        <svg className="h-3.5 w-3.5 flex-shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+        </svg>
+        <span className="flex-1 text-xs font-medium text-amber-700">Apply the pull secret &amp; make pods use it (guest cluster, day-2)</span>
+        <svg className={`h-3 w-3 text-amber-600 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="space-y-2.5 border-t border-amber-200 px-3 py-3">
+          <p className="text-xs text-ink-600">
+            1. The pull secret targets the <strong>guest cluster</strong>, not the Supervisor — apply it
+            with the guest kubeconfig (from the green box above), once the cluster is Ready:
+          </p>
+          <Cmd text={`kubectl --kubeconfig <cluster>.kubeconfig apply -f <pull-secret>.yaml`} />
+          <p className="text-xs text-ink-600">
+            2. The Secret alone does nothing — a pod must reference it. Either per workload:
+          </p>
+          <Cmd text={`spec:\n  imagePullSecrets:\n    - name: ${sn}`} />
+          <p className="text-xs text-ink-600">
+            …or attach it to the namespace's default ServiceAccount so every pod in{' '}
+            <span className="font-mono text-ink-700">{ns}</span> inherits it:
+          </p>
+          <Cmd text={`kubectl --kubeconfig <cluster>.kubeconfig -n ${ns} \\\n  patch serviceaccount default \\\n  -p '{"imagePullSecrets":[{"name":"${sn}"}]}'`} />
+          <p className="text-xs text-ink-400">
+            Pull secrets are namespaced — repeat in every namespace that pulls private images.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
   const state = useClusterClassStore();
   const isDefault = state.configType === 'default';
@@ -305,6 +351,23 @@ export function ReviewSection({ stepNumber, id }: ReviewSectionProps) {
 
       <DryRunHint fileName={fileName} />
       <KubeconfigHint name={state.name} namespace={state.namespace} />
+      {state.registryAuth.enabled && (
+        <PullSecretHint
+          secretName={state.registryAuth.secretName}
+          namespace={state.registryAuth.namespace}
+        />
+      )}
+      <a
+        href="https://github.com/lidorzx/vks-registry/blob/main/docs/vks9-artifactory-connection-guide.md"
+        target="_blank"
+        rel="noreferrer"
+        className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-600 transition-colors hover:text-brand-700"
+      >
+        <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        Full deployment runbook — apply this YAML, connect a registry, troubleshoot →
+      </a>
     </SectionCard>
   );
 }

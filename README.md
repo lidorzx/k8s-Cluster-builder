@@ -4,6 +4,8 @@
 
 **Live demo:** https://lidorzx.github.io/k8s-Cluster-builder/
 
+**Companion deployment guide:** [vks-artifactory-runbook](https://github.com/lidorzx/vks-registry/blob/main/docs/vks9-artifactory-connection-guide.md) — step-by-step guide to apply the YAML this tool generates and connect a private registry (CA trust + pull secret) on VCF 9 / VKS, with or without VCF Automation.
+
 ---
 
 ## What is this?
