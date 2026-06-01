@@ -169,12 +169,17 @@ export function generateYaml(state: ClusterFormState): string {
     };
   }
 
-  // worker pools
+  // worker pools — inherit the control plane's OS image / content library when the
+  // pool's own is blank, so workers pin the SAME library the control plane does.
+  // VCF Automation sets content-library on both; without this, a blank pool emits
+  // `os-name=photon` with no library and the worker OS image may fail to resolve.
   const machineDeployments = workerPools.map((pool) => {
     const poolName = pool.name || `${name}-np-${getPoolSuffix(pool.id)}`;
+    const poolOsName = pool.osImageName || controlPlane.osImageName;
+    const poolContentLibrary = pool.contentLibrary || controlPlane.contentLibrary;
     const workerAnnotation =
-      pool.osImageName || pool.contentLibrary
-        ? `os-name=${pool.osImageName}${pool.contentLibrary ? `, content-library=${pool.contentLibrary}` : ''}`
+      poolOsName || poolContentLibrary
+        ? `os-name=${poolOsName}${poolContentLibrary ? `, content-library=${poolContentLibrary}` : ''}`
         : undefined;
 
     const mdObj: Record<string, unknown> = {

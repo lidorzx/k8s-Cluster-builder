@@ -6,11 +6,23 @@ function genId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-function genVolName(): string {
+function genSuffix(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let s = '';
   for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return `vol-${s}`;
+  return s;
+}
+
+function genVolName(): string {
+  return `vol-${genSuffix()}`;
+}
+
+// VCF Automation suffixes the cluster name (e.g. kubernetes-cluster-lla1) so clusters
+// generated back-to-back don't collide in the same namespace. Mirror that: strip any
+// existing 4-char suffix and roll a fresh one, preserving a custom base name.
+function reseedClusterName(base: string): string {
+  const stripped = base.replace(/-[a-z0-9]{4}$/, '');
+  return `${stripped || 'kubernetes-cluster'}-${genSuffix()}`;
 }
 
 
@@ -33,6 +45,7 @@ interface ClusterActions {
   removeRegistryTrust: (id: string) => void;
   updateRegistryTrust: (id: string, partial: Partial<RegistryTrust>) => void;
   updateRegistryAuth: (partial: Partial<RegistryAuth>) => void;
+  regenerateName: () => void;
   resetToDefaults: () => void;
 }
 
@@ -40,6 +53,7 @@ type StoreState = ClusterFormState & ClusterActions;
 
 export const useClusterClassStore = create<StoreState>((set) => ({
   ...defaultState,
+  name: reseedClusterName(defaultState.name),
 
   update: (partial) => set((state) => ({ ...state, ...partial })),
 
@@ -208,5 +222,7 @@ export const useClusterClassStore = create<StoreState>((set) => ({
       registryAuth: { ...state.registryAuth, ...partial },
     })),
 
-  resetToDefaults: () => set({ ...defaultState }),
+  regenerateName: () => set((state) => ({ name: reseedClusterName(state.name) })),
+
+  resetToDefaults: () => set({ ...defaultState, name: reseedClusterName(defaultState.name) }),
 }));

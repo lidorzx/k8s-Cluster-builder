@@ -2,6 +2,7 @@ import { SectionCard } from '../ui/SectionCard';
 import { FormField } from '../ui/FormField';
 import { FieldHint, KubectlBlock } from '../ui/FieldHint';
 import { VolumeEditor } from '../ui/VolumeEditor';
+import { RegenerateButton } from '../ui/RegenerateButton';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 
 const INPUT_CLASS = 'ui-input';
@@ -25,13 +26,16 @@ export function GeneralSettingsSection({ stepNumber, id }: GeneralSettingsSectio
     >
       <div>
         <FormField label="Cluster Name" htmlFor="cluster-name" required>
-          <input
-            id="cluster-name"
-            type="text"
-            value={state.name}
-            onChange={(e) => update({ name: e.target.value })}
-            className={INPUT_CLASS}
-          />
+          <div className="flex items-stretch gap-2">
+            <input
+              id="cluster-name"
+              type="text"
+              value={state.name}
+              onChange={(e) => update({ name: e.target.value })}
+              className={INPUT_CLASS}
+            />
+            <RegenerateButton onClick={state.regenerateName} />
+          </div>
         </FormField>
 
         <FormField label="Namespace" htmlFor="namespace" required>

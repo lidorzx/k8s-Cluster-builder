@@ -1,6 +1,7 @@
 import { SectionCard } from '../ui/SectionCard';
 import { FormField } from '../ui/FormField';
 import { FieldHint, KubectlBlock } from '../ui/FieldHint';
+import { RegenerateButton } from '../ui/RegenerateButton';
 import { useClusterClassStore } from '../../store/useClusterClassStore';
 import { useState } from 'react';
 
@@ -45,7 +46,7 @@ function ContentLibraryHint() {
 export function DefaultSettingsSection({ stepNumber, id }: Props) {
   const {
     name, namespace, vmClass, storageClass, kubernetesVersion,
-    controlPlane, workerPools, update, updateControlPlane, updateWorkerPool,
+    controlPlane, workerPools, update, updateControlPlane, updateWorkerPool, regenerateName,
   } = useClusterClassStore();
 
   const defaultPool = workerPools[0];
@@ -59,13 +60,16 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
     >
       <div>
         <FormField label="Cluster Name" htmlFor="d-name" required>
-          <input
-            id="d-name"
-            type="text"
-            value={name}
-            onChange={(e) => update({ name: e.target.value })}
-            className={INPUT}
-          />
+          <div className="flex items-stretch gap-2">
+            <input
+              id="d-name"
+              type="text"
+              value={name}
+              onChange={(e) => update({ name: e.target.value })}
+              className={INPUT}
+            />
+            <RegenerateButton onClick={regenerateName} />
+          </div>
         </FormField>
 
         <FormField label="Namespace" htmlFor="d-namespace" required>
