@@ -115,7 +115,7 @@ metadata:
   namespace: namespace-myorg-xxxx
 type: Opaque
 data:
-  artifactory-ca: <double base64-encoded PEM>
+  additional-ca-1: <double base64-encoded PEM>
 ---
 # ── Cluster (reference) ──
 spec:
@@ -128,7 +128,7 @@ spec:
               - caCert:
                   secretRef:
                     name: registry-ca-trust-secret
-                    key: artifactory-ca
+                    key: additional-ca-1
 ```
 
 The Trust Secret and the Cluster both target the **Supervisor** namespace, so they share an
@@ -216,11 +216,11 @@ base64), exactly as VKS expects.
 ```bash
 # Create the secret from the one-PEM bundle (inner base64; kubectl adds the outer):
 kubectl create secret generic registry-ca-trust-secret -n namespace-myorg-xxxx \
-  --from-literal=artifactory-ca="$(base64 -w0 ca-chain.pem)"
+  --from-literal=additional-ca-1="$(base64 -w0 ca-chain.pem)"
 
 # Verify it round-trips — double-decode the stored value; you should see every cert in the chain:
 kubectl get secret registry-ca-trust-secret -n namespace-myorg-xxxx \
-  -o jsonpath='{.data.artifactory-ca}' | base64 -d | base64 -d \
+  -o jsonpath='{.data.additional-ca-1}' | base64 -d | base64 -d \
   | openssl crl2pkcs7 -nocrl -certfile /dev/stdin | openssl pkcs7 -print_certs -noout
 ```
 
@@ -248,12 +248,21 @@ replace the whole list and drop your other variables.
 
 ```bash
 # Most clusters have no osConfiguration yet → append one:
-kubectl patch cluster my-cluster -n namespace-myorg-xxxx --type=json -p '[
-  {"op":"add","path":"/spec/topology/variables/-","value":{
-    "name":"osConfiguration",
-    "value":{"trust":{"additionalTrustedCAs":[
-      {"caCert":{"secretRef":{"name":"registry-ca-trust-secret","key":"artifactory-ca"}}}
-    ]}}}}
+kubectl patch cluster my-cluster -n namespace-myorg-xxxx --type=json -p='[
+  {
+    "op": "add",
+    "path": "/spec/topology/variables/-",
+    "value": {
+      "name": "osConfiguration",
+      "value": {
+        "trust": {
+          "additionalTrustedCAs": [
+            { "caCert": { "secretRef": { "key": "additional-ca-1", "name": "registry-ca-trust-secret" } } }
+          ]
+        }
+      }
+    }
+  }
 ]'
 ```
 
@@ -266,10 +275,16 @@ kubectl get cluster my-cluster -n namespace-myorg-xxxx \
   -o jsonpath='{range .spec.topology.variables[*]}{.name}{"\n"}{end}'
 
 # …then, if osConfiguration is index 2:
-kubectl patch cluster my-cluster -n namespace-myorg-xxxx --type=json -p '[
-  {"op":"add","path":"/spec/topology/variables/2/value/trust","value":{"additionalTrustedCAs":[
-    {"caCert":{"secretRef":{"name":"registry-ca-trust-secret","key":"artifactory-ca"}}}
-  ]}}
+kubectl patch cluster my-cluster -n namespace-myorg-xxxx --type=json -p='[
+  {
+    "op": "add",
+    "path": "/spec/topology/variables/2/value/trust",
+    "value": {
+      "additionalTrustedCAs": [
+        { "caCert": { "secretRef": { "key": "additional-ca-1", "name": "registry-ca-trust-secret" } } }
+      ]
+    }
+  }
 ]'
 ```
 
