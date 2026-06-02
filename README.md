@@ -100,9 +100,9 @@ Two sources are supported per registry:
 - **Use existing secret** — reference a `Secret` you already created in the Supervisor namespace
   by name + key.
 
-> Issued by a sub-CA? Insert the **full chain** — the root CA **and** every sub-CA/intermediate
-> (never the registry's leaf cert). If they come bundled in one PEM, don't trust it as one blob —
-> split it and add one entry per certificate. See *Trusting a CA bundle* in the deployment guide.
+> Issued by a sub-CA? Provide the **full chain in one PEM**, ordered **leaf → root**: the Artifactory
+> cert, then the intermediate (sub-CA), then the root CA. Paste that as a single entry; see
+> [§3](#3-creating-the-secrets-without-yaml-kubectl) for converting, ordering and combining certs.
 
 The trust is emitted under the cluster's `osConfiguration` variable (merged with NTP if set):
 
@@ -143,8 +143,27 @@ already orders it that way).
 
 ### 2. Authentication — pull secret
 
-Optionally generates a `docker-registry` (`dockerconfigjson`) pull secret — the credentials half.
-This is equivalent to what `kubectl create secret docker-registry` produces:
+The credentials half. Easiest path is the **command** — run it in a namespace inside the **guest
+cluster** (not the Supervisor), after the cluster is running:
+
+```bash
+kubectl create secret docker-registry regcred \
+  --docker-server=artifactory.company.com \
+  --docker-username='your-username' \
+  --docker-password='your-access-token' \
+  -n apps
+
+# Make every pod in the namespace use it automatically:
+kubectl patch serviceaccount default -n apps \
+  -p '{"imagePullSecrets":[{"name":"regcred"}]}'
+```
+
+- `--docker-server` must match the registry host in your image references **exactly** (with the port
+  if you use the port-based method).
+- Per-workload instead of the SA patch: add `imagePullSecrets: [{ name: regcred }]` to the Pod/Deployment.
+
+Prefer YAML? The builder emits the equivalent `dockerconfigjson` Secret — same object, applied to the
+guest namespace:
 
 ```yaml
 apiVersion: v1
@@ -157,66 +176,116 @@ data:
   .dockerconfigjson: <base64 { auths: { <server>: { username, password, auth, email } } }>
 ```
 
-Using it is day-2 work, after the cluster is running:
-
-1. Apply the secret to a namespace in the **guest cluster** (not the Supervisor).
-2. Make workloads use it — either add `imagePullSecrets: [{ name: regcred }]` to the
-   pod/Deployment, or attach it to the namespace's default service account so every pod inherits it:
-   ```bash
-   kubectl patch serviceaccount default -n apps \
-     -p '{"imagePullSecrets":[{"name":"regcred"}]}'
-   ```
-3. The **Registry Server** value must match the registry host in your image references **exactly** —
-   including the port if you use the port-based access method.
-
-> **Different apply target.** The pull secret is applied to the **guest cluster's** workload
-> namespace (day-2), not the Supervisor — so it's a standalone tab, kept out of the Supervisor
-> bundle. Credentials are encoded entirely in your browser; nothing is uploaded anywhere.
+> Credentials are encoded entirely in your browser; nothing is uploaded anywhere.
 
 ### 3. Creating the secrets without YAML (`kubectl`)
 
 Don't want a manifest on disk (air-gapped jump host, quick one-off)? Create both secrets
 imperatively — same objects, no file.
 
-**First, make sure the CA is PEM.** The builder's paste field and every command below need **PEM**
-— text that starts with `-----BEGIN CERTIFICATE-----`. A `.crt` / `.cer` file may be PEM *or* binary
-DER, so check before you encode anything:
+**First, build one PEM file with the full chain — in order.** Everything below works on **PEM**
+(text, `-----BEGIN CERTIFICATE-----`). The bundle must hold the **whole chain, ordered leaf → root**:
+
+1. the **Artifactory server cert**, then
+2. the **intermediate (sub-CA)**, then
+3. the **root CA** last.
+
+Order matters — keep it Artifactory → intermediate → root.
 
 ```bash
-# PEM → use the file as-is;  otherwise it's DER and must be converted:
-grep -q "BEGIN CERTIFICATE" ca.crt && echo "PEM — use as-is" || echo "DER — convert it"
+# Every file must be PEM. This lists any that are binary DER (convert those):
+grep -L "BEGIN CERTIFICATE" *.crt
+#   convert a DER file:  openssl x509 -inform der -in <file>.crt -out <file>.pem
 
-# DER → PEM (only if the check above said DER):
-openssl x509 -inform der -in ca.crt -out ca.pem
+# Concatenate in chain order — Artifactory (leaf) → intermediate (sub-CA) → root CA:
+cat artifactory.crt sub-ca.crt root-ca.crt > ca-chain.pem
+
+# Confirm the bundle holds every cert, in order (read subject/issuer top to bottom):
+openssl crl2pkcs7 -nocrl -certfile ca-chain.pem | openssl pkcs7 -print_certs -noout
 ```
 
-- **Already PEM** (`ca.crt` shows the `BEGIN CERTIFICATE` header) → use that file directly below.
-- **Binary DER** → convert with the `openssl` line above, then use the resulting `ca.pem`.
+If Artifactory's cert is **self-signed** (no separate CA), it's the whole chain on its own — use it
+as your `ca-chain.pem`. Getting the order wrong, or feeding DER where PEM is expected, is a common
+silent trust failure.
 
-Encoding a DER file where PEM is expected is a common silent trust failure.
-
-**Trust secret — Supervisor namespace.** Mind the double encoding: `kubectl` base64-encodes the
-value you pass it once, so hand it the **inner** base64 of the PEM and the stored value ends up
-double-encoded, exactly as VKS expects.
+**Trust secret — Supervisor namespace.** The whole PEM bundle goes into **one key** — VKS reads the
+full chain from it. Mind the double encoding: `kubectl` base64-encodes the value you pass it once, so
+hand it the **inner** base64 of the bundle and the stored value ends up double-encoded (base64 of
+base64), exactly as VKS expects.
 
 ```bash
-# Single CA:
+# Create the secret from the one-PEM bundle (inner base64; kubectl adds the outer):
 kubectl create secret generic registry-ca-trust-secret -n namespace-myorg-xxxx \
-  --from-literal=artifactory-ca="$(base64 -w0 ca.crt)"
+  --from-literal=artifactory-ca="$(base64 -w0 ca-chain.pem)"
 
-# Sub-CA chain — one key per cert, root AND every sub-CA (never the leaf):
-kubectl create secret generic registry-ca-trust-secret -n namespace-myorg-xxxx \
-  --from-literal=artifactory-ca-root="$(base64 -w0 root-ca.crt)" \
-  --from-literal=artifactory-ca-sub="$(base64 -w0 sub-ca.crt)"
+# Verify it round-trips — double-decode the stored value; you should see every cert in the chain:
+kubectl get secret registry-ca-trust-secret -n namespace-myorg-xxxx \
+  -o jsonpath='{.data.artifactory-ca}' | base64 -d | base64 -d \
+  | openssl crl2pkcs7 -nocrl -certfile /dev/stdin | openssl pkcs7 -print_certs -noout
 ```
 
-> Don't use `--from-file=artifactory-ca=ca.crt` with the raw PEM — that encodes it only **once**
-> and the node trust import fails. The `--from-literal="$(base64 -w0 …)"` form is what produces the
-> double encoding.
+> Use `--from-literal="$(base64 -w0 …)"`, **not** `--from-file=…=ca.pem` — `--from-file` encodes the
+> bundle only **once** and the node trust import fails. The whole bundle lives under one key; VKS
+> reads every cert in it. (If a cert ever isn't picked up, fall back to one key per cert.)
 
-The cluster still has to **reference** those keys under `osConfiguration.trust.additionalTrustedCAs`
-— generate that part with the builder, or `kubectl patch` it into a live cluster (see the
-[deployment guide](https://github.com/lidorzx/vks-registry/blob/main/docs/vks9-artifactory-connection-guide.md), A.4).
+**Add the trust to an already-running cluster.** The common day-2 case: the cluster is deployed and
+you now need it to trust the registry. The secret exists (above) — point the live cluster at it.
+
+You're editing **the `Cluster` object you generated** (e.g. `my-cluster`), via the **Supervisor
+context** where that object lives. This changes *your* cluster only — not the Supervisor — and trust
+is per-cluster. Make sure the name and namespace below are your generated cluster's, and **back up
+its current spec first** so you can roll back:
+
+```bash
+# Supervisor context. Back up the generated cluster's YAML before you touch it:
+kubectl get cluster my-cluster -n namespace-myorg-xxxx -o yaml > my-cluster.backup.yaml
+
+# (roll back later if needed:  kubectl apply -f my-cluster.backup.yaml)
+```
+
+`spec.topology.variables` is a list, so use a **JSON patch** (`--type=json`); a merge patch would
+replace the whole list and drop your other variables.
+
+```bash
+# Most clusters have no osConfiguration yet → append one:
+kubectl patch cluster my-cluster -n namespace-myorg-xxxx --type=json -p '[
+  {"op":"add","path":"/spec/topology/variables/-","value":{
+    "name":"osConfiguration",
+    "value":{"trust":{"additionalTrustedCAs":[
+      {"caCert":{"secretRef":{"name":"registry-ca-trust-secret","key":"artifactory-ca"}}}
+    ]}}}}
+]'
+```
+
+If `osConfiguration` already exists (e.g. it carries `ntp`), don't append a second one — add `trust`
+under its existing index:
+
+```bash
+# Find the index (0-based):
+kubectl get cluster my-cluster -n namespace-myorg-xxxx \
+  -o jsonpath='{range .spec.topology.variables[*]}{.name}{"\n"}{end}'
+
+# …then, if osConfiguration is index 2:
+kubectl patch cluster my-cluster -n namespace-myorg-xxxx --type=json -p '[
+  {"op":"add","path":"/spec/topology/variables/2/value/trust","value":{"additionalTrustedCAs":[
+    {"caCert":{"secretRef":{"name":"registry-ca-trust-secret","key":"artifactory-ca"}}}
+  ]}}
+]'
+```
+
+The patch triggers a **rolling node update** — trust is baked into each node as it re-rolls. Confirm
+it landed, then watch the roll:
+
+```bash
+kubectl get cluster my-cluster -n namespace-myorg-xxxx \
+  -o jsonpath='{.spec.topology.variables[?(@.name=="osConfiguration")].value.trust}'
+kubectl get machines -n namespace-myorg-xxxx -w
+```
+
+> Provisioning a **new** cluster instead? Generate the same `osConfiguration.trust` block with the
+> builder, or see the
+> [deployment guide](https://github.com/lidorzx/vks-registry/blob/main/docs/vks9-artifactory-connection-guide.md)
+> (A.3 new cluster, A.4 existing, plus the LCI UI path).
 
 **Pull secret — guest cluster namespace.** Imperative by nature:
 
