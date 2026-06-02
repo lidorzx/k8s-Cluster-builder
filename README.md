@@ -173,6 +173,65 @@ Using it is day-2 work, after the cluster is running:
 > namespace (day-2), not the Supervisor — so it's a standalone tab, kept out of the Supervisor
 > bundle. Credentials are encoded entirely in your browser; nothing is uploaded anywhere.
 
+### 3. Creating the secrets without YAML (`kubectl`)
+
+Don't want a manifest on disk (air-gapped jump host, quick one-off)? Create both secrets
+imperatively — same objects, no file.
+
+**First, make sure the CA is PEM.** The builder's paste field and every command below need **PEM**
+— text that starts with `-----BEGIN CERTIFICATE-----`. A `.crt` / `.cer` file may be PEM *or* binary
+DER, so check before you encode anything:
+
+```bash
+# PEM → use the file as-is;  otherwise it's DER and must be converted:
+grep -q "BEGIN CERTIFICATE" ca.crt && echo "PEM — use as-is" || echo "DER — convert it"
+
+# DER → PEM (only if the check above said DER):
+openssl x509 -inform der -in ca.crt -out ca.pem
+```
+
+- **Already PEM** (`ca.crt` shows the `BEGIN CERTIFICATE` header) → use that file directly below.
+- **Binary DER** → convert with the `openssl` line above, then use the resulting `ca.pem`.
+
+Encoding a DER file where PEM is expected is a common silent trust failure.
+
+**Trust secret — Supervisor namespace.** Mind the double encoding: `kubectl` base64-encodes the
+value you pass it once, so hand it the **inner** base64 of the PEM and the stored value ends up
+double-encoded, exactly as VKS expects.
+
+```bash
+# Single CA:
+kubectl create secret generic registry-ca-trust-secret -n namespace-myorg-xxxx \
+  --from-literal=artifactory-ca="$(base64 -w0 ca.crt)"
+
+# Sub-CA chain — one key per cert, root AND every sub-CA (never the leaf):
+kubectl create secret generic registry-ca-trust-secret -n namespace-myorg-xxxx \
+  --from-literal=artifactory-ca-root="$(base64 -w0 root-ca.crt)" \
+  --from-literal=artifactory-ca-sub="$(base64 -w0 sub-ca.crt)"
+```
+
+> Don't use `--from-file=artifactory-ca=ca.crt` with the raw PEM — that encodes it only **once**
+> and the node trust import fails. The `--from-literal="$(base64 -w0 …)"` form is what produces the
+> double encoding.
+
+The cluster still has to **reference** those keys under `osConfiguration.trust.additionalTrustedCAs`
+— generate that part with the builder, or `kubectl patch` it into a live cluster (see the
+[deployment guide](https://github.com/lidorzx/vks-registry/blob/main/docs/vks9-artifactory-connection-guide.md), A.4).
+
+**Pull secret — guest cluster namespace.** Imperative by nature:
+
+```bash
+kubectl create secret docker-registry regcred \
+  --docker-server=artifactory.company.com \
+  --docker-username='your-username' \
+  --docker-password='your-access-token' \
+  -n apps
+
+# Make every pod in the namespace use it automatically:
+kubectl patch serviceaccount default -n apps \
+  -p '{"imagePullSecrets":[{"name":"regcred"}]}'
+```
+
 ---
 
 ## Tech stack
