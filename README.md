@@ -74,22 +74,35 @@ spec:
 
 ## Private registry
 
-In **Custom** mode, the *Private Registry* step covers the two halves of connecting a cluster to
-a private container registry (JFrog Artifactory, Harbor, etc.). Each generated resource appears as
-its own tab in the YAML panel with independent copy/download.
+In **Custom** mode, the *Private Registry* step covers the **two independent halves** of connecting
+a cluster to a private container registry (JFrog Artifactory, Harbor, etc.). The registry is fronted
+by an **internal, offline CA** (not a public one), so you need **both** halves — they fail
+differently and one does not imply the other:
+
+- **Trust (TLS)** — missing → `x509: certificate signed by unknown authority`
+- **Authentication (pull secret)** — missing → `401 Unauthorized` / `ImagePullBackOff`
+
+Each generated resource appears as its own tab in the YAML panel with independent copy/download.
+For the full apply-and-verify procedure, see the
+[deployment guide](https://github.com/lidorzx/vks-registry/blob/main/docs/vks9-artifactory-connection-guide.md).
 
 ### 1. Trust — CA certificate
 
 Makes the cluster nodes trust the registry's TLS certificate, so image pulls don't fail with
-`x509: certificate signed by unknown authority`.
+`x509: certificate signed by unknown authority`. The cert is signed by an internal/offline CA the
+nodes don't ship with, so this step is **always required** — there's no public-CA shortcut here.
 
 Two sources are supported per registry:
 
-- **Paste certificate** — paste the registry's CA in PEM. The builder base64-encodes it (the
-  double-encoding VKS expects) and adds a `Secret` document above the `Cluster`, then references
-  it from the cluster spec.
+- **Paste certificate** — paste the issuing CA in PEM. The builder applies the double-base64
+  encoding VKS expects and adds a `Secret` document **above** the `Cluster` (it must exist before
+  the cluster references it), then wires the `secretRef` into the cluster spec.
 - **Use existing secret** — reference a `Secret` you already created in the Supervisor namespace
   by name + key.
+
+> Issued by a sub-CA? Insert the **full chain** — the root CA **and** every sub-CA/intermediate
+> (never the registry's leaf cert). If they come bundled in one PEM, don't trust it as one blob —
+> split it and add one entry per certificate. See *Trusting a CA bundle* in the deployment guide.
 
 The trust is emitted under the cluster's `osConfiguration` variable (merged with NTP if set):
 
@@ -119,12 +132,19 @@ spec:
 ```
 
 The Trust Secret and the Cluster both target the **Supervisor** namespace, so they share an
-**All (Supervisor)** tab that joins them into one apply bundle.
+**All (Supervisor)** tab that joins them into one apply bundle — apply the secret first (the tab
+already orders it that way).
+
+> **Trust is baked into nodes at provision/rollout, not applied live.** On a new cluster it takes
+> effect as nodes come up. Adding or changing trust on a *running* cluster triggers a **rolling
+> node update**, and the secret is immutable once referenced — rotate by creating a new secret and
+> repointing the spec; editing the secret's data in place does nothing. In air-gapped sites you can
+> also patch trust into an already-provisioned cluster (see the deployment guide, A.4).
 
 ### 2. Authentication — pull secret
 
 Optionally generates a `docker-registry` (`dockerconfigjson`) pull secret — the credentials half.
-This is byte-for-byte what `kubectl create secret docker-registry` produces:
+This is equivalent to what `kubectl create secret docker-registry` produces:
 
 ```yaml
 apiVersion: v1
@@ -136,6 +156,18 @@ type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: <base64 { auths: { <server>: { username, password, auth, email } } }>
 ```
+
+Using it is day-2 work, after the cluster is running:
+
+1. Apply the secret to a namespace in the **guest cluster** (not the Supervisor).
+2. Make workloads use it — either add `imagePullSecrets: [{ name: regcred }]` to the
+   pod/Deployment, or attach it to the namespace's default service account so every pod inherits it:
+   ```bash
+   kubectl patch serviceaccount default -n apps \
+     -p '{"imagePullSecrets":[{"name":"regcred"}]}'
+   ```
+3. The **Registry Server** value must match the registry host in your image references **exactly** —
+   including the port if you use the port-based access method.
 
 > **Different apply target.** The pull secret is applied to the **guest cluster's** workload
 > namespace (day-2), not the Supervisor — so it's a standalone tab, kept out of the Supervisor

@@ -106,8 +106,10 @@ function RegistryCard({
               className={`${INPUT} font-mono text-xs leading-relaxed resize-y`}
             />
             <p className="mt-1 text-xs text-gray-400">
-              Paste the issuing CA's certificate. The builder base64-encodes it and adds a Secret
-              document above the Cluster.
+              Paste <strong>one</strong> certificate per entry. For a sub-CA chain, add the root CA
+              and each sub-CA as <strong>separate entries</strong> (not one bundled blob) — the full
+              chain must be trusted. The builder base64-encodes each and adds a Secret document above
+              the Cluster.
             </p>
           </div>
         </>
@@ -214,7 +216,7 @@ export function RegistryTrustSection({ stepNumber, id }: Props) {
           </p>
           <KubectlBlock command={'kubectl create secret docker-registry regcred \\\n  --docker-server=artifactory.company.com \\\n  --docker-username=<user> --docker-password=<token> \\\n  -n <workload-namespace>'} />
           <p className="text-gray-500">
-            Skip the Trust step entirely if the registry uses a publicly-trusted certificate.
+            The registry uses an internal/offline CA, so the Trust step is always required — there's no public-CA shortcut.
           </p>
         </FieldHint>
 
