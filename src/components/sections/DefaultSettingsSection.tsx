@@ -173,6 +173,27 @@ export function DefaultSettingsSection({ stepNumber, id }: Props) {
           </FormField>
         )}
 
+        {defaultPool && (
+          <FormField label="Worker VM Class" htmlFor="d-np-vmclass">
+            <input
+              id="d-np-vmclass"
+              type="text"
+              value={defaultPool.vmClass ?? ''}
+              onChange={(e) => updateWorkerPool(defaultPool.id, { vmClass: e.target.value })}
+              placeholder="inherits cluster VM Class"
+              className={INPUT}
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Optional. Overrides the cluster-wide VM Class for worker nodes only. Leave blank to
+              use the VM Class above for both control plane and workers.
+            </p>
+            <FieldHint label="How to find available VM classes">
+              <p>VM classes define CPU and memory for each node. List available ones:</p>
+              <KubectlBlock command="kubectl get virtualmachineclasses" />
+            </FieldHint>
+          </FormField>
+        )}
+
         <FormField label="OS Image" htmlFor="d-os" hint="e.g. photon, ubuntu">
           <input
             id="d-os"
